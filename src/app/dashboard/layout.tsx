@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   LayoutDashboard,
   BookMarked,
+  Briefcase,
   Bookmark,
   User,
   LogOut,
@@ -23,7 +24,8 @@ import {
 
 const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/dashboard/courses", icon: BookMarked, label: "My Courses" },
+    { href: "/dashboard/courses", icon: BookMarked, label: "Courses" },
+    { href: "/dashboard/internships", icon: Briefcase, label: "Internships" },
     { href: "/dashboard/saved", icon: Bookmark, label: "Saved Items" },
     { href: "/dashboard/profile", icon: User, label: "Profile" },
 ];

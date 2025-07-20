@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowRight, BookOpen, Briefcase, Filter, Search } from 'lucide-react';
 
 import { listings } from '@/lib/mockData';
@@ -91,8 +92,8 @@ export default function Home() {
               ))}
             </div>
             <div className="mt-12 text-center">
-              <Button variant="outline" size="lg">
-                View All Courses <ArrowRight className="ml-2" />
+              <Button variant="outline" size="lg" asChild>
+                <Link href="/dashboard/courses">View All Courses <ArrowRight className="ml-2" /></Link>
               </Button>
             </div>
           </div>
@@ -112,8 +113,8 @@ export default function Home() {
               ))}
             </div>
             <div className="mt-12 text-center">
-              <Button variant="outline" size="lg">
-                View All Internships <ArrowRight className="ml-2" />
+              <Button variant="outline" size="lg" asChild>
+                <Link href="/dashboard/internships">View All Internships <ArrowRight className="ml-2" /></Link>
               </Button>
             </div>
           </div>
