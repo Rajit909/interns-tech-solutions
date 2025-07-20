@@ -15,16 +15,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Please provide email and password' }, { status: 400 });
     }
 
-    // Explicitly select the password field for the login query
-    const user = await User.findOne({ email, role: 'admin' }).select('+password');
+    const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
-      // Check if a user exists with the email but isn't an admin
-      const nonAdminUser = await User.findOne({ email });
-      if (nonAdminUser) {
-        return NextResponse.json({ error: 'Access denied. User is not an admin.' }, { status: 403 });
-      }
-      return NextResponse.json({ error: 'Invalid credentials or user does not exist' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+
+    if (user.role !== 'admin') {
+      return NextResponse.json({ error: 'Access denied. User is not an admin.' }, { status: 403 });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
