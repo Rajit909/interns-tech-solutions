@@ -1,3 +1,5 @@
+'use client';
+
 import {
   SidebarProvider,
   Sidebar,
@@ -21,7 +23,9 @@ import {
   Settings,
 } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { usePathname, useRouter } from 'next/navigation'
+import { useToast } from "@/hooks/use-toast";
+
 
 const navItems = [
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
@@ -36,6 +40,24 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
+  
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      toast({ title: 'Logged out successfully' });
+      router.push('/admin/login');
+    } catch (error) {
+      toast({ title: 'Logout failed', variant: 'destructive' });
+    }
+  }
+
+  if (pathname === '/admin/login' || pathname === '/admin/signup') {
+    return <>{children}</>
+  }
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen">
@@ -47,7 +69,7 @@ export default function AdminLayout({
             <SidebarMenu>
                 {navItems.map((item) => (
                     <SidebarMenuItem key={item.label}>
-                        <SidebarMenuButton asChild tooltip={item.label}>
+                        <SidebarMenuButton asChild tooltip={item.label} isActive={pathname === item.href}>
                         <Link href={item.href}>
                             <item.icon />
                             <span>{item.label}</span>
@@ -68,11 +90,9 @@ export default function AdminLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Logout">
-                  <Link href="/">
+                <SidebarMenuButton tooltip="Logout" onClick={handleLogout}>
                     <LogOut />
                     <span>Logout</span>
-                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
