@@ -1,10 +1,27 @@
 import { PlusCircle } from "lucide-react";
 import { CourseTable } from "@/components/admin/CourseTable";
-import { listings } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
+import type { Course } from "@/lib/types";
 
-export default function AdminCoursesPage() {
-  const courses = listings.filter(l => l.type === 'Course');
+async function getCourses() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/courses`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch courses");
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Error loading courses: ", error);
+    return { courses: [] };
+  }
+}
+
+export default async function AdminCoursesPage() {
+  const { courses }: { courses: Course[] } = await getCourses();
   
   return (
     <div className="space-y-6">
