@@ -15,7 +15,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Please provide email and password' }, { status: 400 });
     }
 
-    const user = await User.findOne({ email, role: 'admin' });
+    // Explicitly select the password field for the login query
+    const user = await User.findOne({ email, role: 'admin' }).select('+password');
 
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials or not an admin' }, { status: 401 });

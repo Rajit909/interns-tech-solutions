@@ -21,6 +21,7 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // When creating the user, the password field is present and will be saved.
     const newUser = new User({
       name,
       email,

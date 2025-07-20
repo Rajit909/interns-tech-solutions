@@ -20,15 +20,4 @@ const UserSchema: Schema = new Schema({
   joinedDate: { type: String, required: true },
 });
 
-// This hook is not needed for signup, but it is for login.
-// It ensures that when you find a user by email, the password field is included.
-UserSchema.pre('findOne', function (next) {
-  const query = this.getQuery();
-  if (query.email) {
-    // @ts-ignore
-    this.select('+password');
-  }
-  next();
-});
-
 export default models.User || mongoose.model<IUser>('User', UserSchema);
