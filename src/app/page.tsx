@@ -162,7 +162,7 @@ export default function Home() {
               </div>
               <div className="relative h-80 w-full lg:h-96">
                 <Image
-                  src="https://placehold.co/600x400"
+                  src="https://placehold.co/600x400.png"
                   alt="About Us Image"
                   fill
                   className="rounded-lg object-cover shadow-lg"

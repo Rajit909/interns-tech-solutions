@@ -11,7 +11,7 @@ export const listings: Listing[] = [
     duration: '8 Weeks',
     price: 199.99,
     rating: 4.8,
-    imageUrl: 'https://placehold.co/600x400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Course',
     studentsEnrolled: 1204
   },
@@ -24,7 +24,7 @@ export const listings: Listing[] = [
     duration: '12 Weeks',
     price: 249.99,
     rating: 4.9,
-    imageUrl: 'https://placehold.co/600x400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Course',
     studentsEnrolled: 2587
   },
@@ -37,7 +37,7 @@ export const listings: Listing[] = [
     duration: '6 Weeks',
     price: 149.99,
     rating: 4.7,
-    imageUrl: 'https://placehold.co/600x400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Course',
     studentsEnrolled: 985
   },
@@ -50,7 +50,7 @@ export const listings: Listing[] = [
     duration: '10 Weeks',
     price: 299.99,
     rating: 4.8,
-    imageUrl: 'https://placehold.co/600x400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Course',
     studentsEnrolled: 1743
   },
@@ -64,7 +64,7 @@ export const listings: Listing[] = [
     duration: '3 Months',
     stipend: '$2000/month',
     location: 'Remote',
-    imageUrl: 'https://placehold.co/600x400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Internship',
     applicants: 152
   },
@@ -77,7 +77,7 @@ export const listings: Listing[] = [
     duration: '6 Months',
     stipend: '$2500/month',
     location: 'New York, NY',
-    imageUrl: 'https://placehold.co/600x400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Internship',
     applicants: 98
   },
@@ -90,7 +90,7 @@ export const listings: Listing[] = [
     duration: '3 Months',
     stipend: '$2200/month',
     location: 'Remote',
-    imageUrl: 'https://placehold.co/600x400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Internship',
     applicants: 203
   },
@@ -103,7 +103,7 @@ export const listings: Listing[] = [
     duration: '4 Months',
     stipend: '$1800/month',
     location: 'San Francisco, CA',
-    imageUrl: 'https://placehold.co/600x400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Internship',
     applicants: 112
   }
