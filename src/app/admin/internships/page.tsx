@@ -5,6 +5,7 @@ import type { IInternship } from "@/models/Internship";
 
 async function getInternships() {
   try {
+    // This will be updated to a secure URL in production
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/internships`, {
       cache: "no-store",
     });
