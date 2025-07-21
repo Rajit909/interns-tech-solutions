@@ -19,13 +19,19 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
-import type { Listing } from '@/lib/types'
+import type { ICourse } from '@/models/Course';
+import type { IInternship } from '@/models/Internship';
+
+// A helper type that makes the 'id' field available as '_id' for MongoDB documents
+type DbListing = (ICourse | IInternship) & { _id: string };
 
 type CourseTableProps = {
-  listings: Listing[]
+  listings: (ICourse | IInternship)[]
 }
 
 export function CourseTable({ listings }: CourseTableProps) {
+  const allListings = Array.isArray(listings) ? listings : [];
+
   return (
     <Card>
       <Table>
@@ -39,48 +45,50 @@ export function CourseTable({ listings }: CourseTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {listings.map((listing) => (
-            <TableRow key={listing.id}>
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <Image src={listing.imageUrl} alt={listing.title} width={60} height={40} className="rounded-md object-cover" data-ai-hint="course thumbnail" />
-                  <div>
-                    <div className="font-medium">{listing.title}</div>
-                    <div className="text-sm text-muted-foreground">{listing.type}</div>
+          {allListings.map((listing) => {
+            const dbListing = listing as DbListing;
+            return (
+              <TableRow key={dbListing._id}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Image src={listing.imageUrl} alt={listing.title} width={60} height={40} className="rounded-md object-cover" data-ai-hint="course thumbnail" />
+                    <div>
+                      <div className="font-medium">{listing.title}</div>
+                      <div className="text-sm text-muted-foreground">{listing.type}</div>
+                    </div>
                   </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <Badge variant="outline">{listing.category}</Badge>
-              </TableCell>
-              <TableCell>{listing.type === 'Course' ? listing.instructor : listing.organization}</TableCell>
-              <TableCell>
-                {listing.type === 'Course'
-                  ? `${listing.studentsEnrolled} enrolled`
-                  : `${listing.applicants} applicants`}
-              </TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="w-4 h-4" />
-                      <span className="sr-only">Listing Actions</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline">{listing.category}</Badge>
+                </TableCell>
+                <TableCell>{listing.type === 'Course' ? (listing as ICourse).instructor : (listing as IInternship).organization}</TableCell>
+                <TableCell>
+                  {listing.type === 'Course'
+                    ? `${(listing as ICourse).studentsEnrolled} enrolled`
+                    : `${(listing as IInternship).applicants} applicants`}
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="w-4 h-4" />
+                        <span className="sr-only">Listing Actions</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            )})}
         </TableBody>
       </Table>
     </Card>

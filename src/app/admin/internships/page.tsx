@@ -1,11 +1,11 @@
 import { PlusCircle } from "lucide-react";
 import { CourseTable } from "@/components/admin/CourseTable";
 import { Button } from "@/components/ui/button";
-import type { Internship } from "@/lib/types";
+import type { IInternship } from "@/models/Internship";
 
 async function getInternships() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/internships`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/internships`, {
       cache: "no-store",
     });
 
@@ -21,7 +21,7 @@ async function getInternships() {
 }
 
 export default async function AdminInternshipsPage() {
-    const { internships }: { internships: Internship[] } = await getInternships();
+    const { internships }: { internships: IInternship[] } = await getInternships();
 
     return (
         <div className="space-y-6">

@@ -1,11 +1,12 @@
 import { PlusCircle } from "lucide-react";
 import { CourseTable } from "@/components/admin/CourseTable";
 import { Button } from "@/components/ui/button";
-import type { Course } from "@/lib/types";
+import type { ICourse } from "@/models/Course";
 
 async function getCourses() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/courses`, {
+    // This will be updated to a secure URL in production
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/courses`, {
       cache: "no-store",
     });
 
@@ -21,7 +22,7 @@ async function getCourses() {
 }
 
 export default async function AdminCoursesPage() {
-  const { courses }: { courses: Course[] } = await getCourses();
+  const { courses }: { courses: ICourse[] } = await getCourses();
   
   return (
     <div className="space-y-6">

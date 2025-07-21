@@ -1,9 +1,9 @@
 import { UserTable } from "@/components/admin/UserTable";
-import type { User } from "@/lib/types";
+import type { IUser } from "@/models/User";
 
 async function getUsers() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/users`, {
       cache: "no-store",
     });
 
@@ -19,7 +19,7 @@ async function getUsers() {
 }
 
 export default async function AdminUsersPage() {
-  const { users } : { users: User[] } = await getUsers();
+  const { users } : { users: IUser[] } = await getUsers();
 
   return (
     <div className="space-y-6">
