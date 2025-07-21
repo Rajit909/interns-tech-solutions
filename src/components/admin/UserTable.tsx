@@ -37,8 +37,8 @@ export function UserTable({ users }: UserTableProps) {
               <TableRow>
                 <TableHead>User</TableHead>
                 <TableHead className="hidden sm:table-cell">Status</TableHead>
-                <TableHead className="hidden md:table-cell">Subscription</TableHead>
-                <TableHead className="hidden lg:table-cell">Joined Date</TableHead>
+                <TableHead className="hidden lg:table-cell">Subscription</TableHead>
+                <TableHead className="hidden md:table-cell">Joined Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -49,7 +49,7 @@ export function UserTable({ users }: UserTableProps) {
                   <TableRow key={dbUser._id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar>
+                        <Avatar className="hidden sm:flex">
                           <AvatarImage src={`https://i.pravatar.cc/40?u=${user.email}`} />
                           <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                         </Avatar>
@@ -64,10 +64,10 @@ export function UserTable({ users }: UserTableProps) {
                         {user.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
+                    <TableCell className="hidden lg:table-cell">
                       <Badge variant="outline">{user.subscription}</Badge>
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">{user.joinedDate}</TableCell>
+                    <TableCell className="hidden md:table-cell">{user.joinedDate}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

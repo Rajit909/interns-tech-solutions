@@ -41,8 +41,8 @@ export function CourseTable({ listings }: CourseTableProps) {
               <TableRow>
                 <TableHead>Listing</TableHead>
                 <TableHead className="hidden sm:table-cell">Category</TableHead>
-                <TableHead className="hidden md:table-cell">Instructor/Org</TableHead>
-                <TableHead className="hidden lg:table-cell">Stats</TableHead>
+                <TableHead className="hidden lg:table-cell">Instructor/Org</TableHead>
+                <TableHead className="hidden md:table-cell">Stats</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -53,7 +53,7 @@ export function CourseTable({ listings }: CourseTableProps) {
                   <TableRow key={dbListing._id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Image src={listing.imageUrl} alt={listing.title} width={60} height={40} className="rounded-md object-cover" data-ai-hint="course thumbnail" />
+                        <Image src={listing.imageUrl} alt={listing.title} width={60} height={40} className="hidden rounded-md object-cover sm:block" data-ai-hint="course thumbnail" />
                         <div>
                           <div className="font-medium">{listing.title}</div>
                           <div className="text-sm text-muted-foreground">{listing.type}</div>
@@ -63,8 +63,8 @@ export function CourseTable({ listings }: CourseTableProps) {
                     <TableCell className="hidden sm:table-cell">
                       <Badge variant="outline">{listing.category}</Badge>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">{listing.type === 'Course' ? (listing as ICourse).instructor : (listing as IInternship).organization}</TableCell>
-                    <TableCell className="hidden lg:table-cell">
+                    <TableCell className="hidden lg:table-cell">{listing.type === 'Course' ? (listing as ICourse).instructor : (listing as IInternship).organization}</TableCell>
+                    <TableCell className="hidden md:table-cell">
                       {listing.type === 'Course'
                         ? `${(listing as ICourse).studentsEnrolled} enrolled`
                         : `${(listing as IInternship).applicants} applicants`}
