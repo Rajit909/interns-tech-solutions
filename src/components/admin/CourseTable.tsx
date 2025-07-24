@@ -1,5 +1,7 @@
+
 'use client'
 
+import * as React from 'react'
 import Image from 'next/image'
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react'
 import {
@@ -16,23 +18,52 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import type { ICourse } from '@/models/Course';
 import type { IInternship } from '@/models/Internship';
 
-// A helper type that makes the 'id' field available as '_id' for MongoDB documents
 type DbListing = (ICourse | IInternship) & { _id: string };
 
 type CourseTableProps = {
   listings: (ICourse | IInternship)[]
+  onEdit: (listing: ICourse | IInternship) => void;
+  onDelete: (id: string) => void;
 }
 
-export function CourseTable({ listings }: CourseTableProps) {
+export function CourseTable({ listings, onEdit, onDelete }: CourseTableProps) {
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false);
+  const [selectedListingId, setSelectedListingId] = React.useState<string | null>(null);
+
   const allListings = Array.isArray(listings) ? listings : [];
 
+  const handleDeleteClick = (id: string) => {
+    setSelectedListingId(id);
+    setIsAlertOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedListingId) {
+      onDelete(selectedListingId);
+    }
+    setIsAlertOpen(false);
+    setSelectedListingId(null);
+  };
+
+
   return (
+    <>
     <Card>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
@@ -78,11 +109,13 @@ export function CourseTable({ listings }: CourseTableProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onEdit(listing)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => handleDeleteClick(dbListing._id)}>
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
@@ -96,5 +129,22 @@ export function CourseTable({ listings }: CourseTableProps) {
         </div>
       </CardContent>
     </Card>
+    
+    <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              listing from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
