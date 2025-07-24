@@ -21,7 +21,7 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Wand2 } from "lucide-react"
 import { generateImage } from "@/ai/flows/generate-image-flow"
-import { RichTextEditor } from "@/components/shared/RichTextEditor"
+import { Textarea } from "@/components/ui/textarea"
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -173,7 +173,11 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <RichTextEditor placeholder="A deep dive into React hooks..." {...field} />
+                    <Textarea
+                      placeholder="A deep dive into React hooks..."
+                      className="min-h-[150px]"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
