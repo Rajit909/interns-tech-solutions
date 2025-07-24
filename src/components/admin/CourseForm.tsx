@@ -22,7 +22,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Wand2 } from "lucide-react"
 import { generateImage } from "@/ai/flows/generate-image-flow"
 import { Textarea } from "@/components/ui/textarea"
-import { generateDescription } from "@/ai/flows/generate-description-flow"
+import { suggestCourseDetails } from "@/ai/flows/suggest-course-details-flow"
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -31,9 +31,10 @@ const formSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters.").trim(),
   duration: z.string().min(1, "Duration is required."),
   price: z.coerce.number().min(0, "Price must be a positive number."),
-  rating: z.coerce.number().min(0).max(5, "Rating must be between 0 and 5."),
-  studentsEnrolled: z.coerce.number().min(0, "Students enrolled must be a positive number."),
+  rating: z.coerce.number().min(0).max(5, "Rating must be between 0 and 5.").optional().default(0),
+  studentsEnrolled: z.coerce.number().min(0, "Students enrolled must be a positive number.").optional().default(0),
   imageUrl: z.string().url("Please enter a valid URL or generate one."),
+  bannerPrompt: z.string().optional().default(''),
 });
 
 type CourseFormProps = {
@@ -45,7 +46,7 @@ type CourseFormProps = {
 export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
+  const [isAutofilling, setIsAutofilling] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -60,22 +61,56 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
       rating: course?.rating || 0,
       studentsEnrolled: course?.studentsEnrolled || 0,
       imageUrl: course?.imageUrl || "",
+      bannerPrompt: 'A professional and engaging course banner for the course.'
     },
   })
-
-  const handleGenerateImage = async () => {
+  
+  const handleAutofill = async () => {
     const title = form.getValues("title");
     if (!title) {
         toast({
             title: "Title is missing",
-            description: "Please enter a course title before generating an image.",
+            description: "Please enter a course title before using AI Autofill.",
+            variant: "destructive"
+        });
+        return;
+    }
+    setIsAutofilling(true);
+    try {
+        const result = await suggestCourseDetails({ title });
+        form.setValue("category", result.category, { shouldValidate: true });
+        form.setValue("instructor", result.instructor, { shouldValidate: true });
+        form.setValue("description", result.description, { shouldValidate: true });
+        form.setValue("duration", result.duration, { shouldValidate: true });
+        form.setValue("price", result.price, { shouldValidate: true });
+        form.setValue("bannerPrompt", result.bannerPrompt, { shouldValidate: true });
+        toast({ title: "Success!", description: "AI has filled in the course details." });
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Failed to generate AI details.",
+            variant: "destructive"
+        });
+        console.error("Autofill failed:", error);
+    } finally {
+        setIsAutofilling(false);
+    }
+  }
+
+
+  const handleGenerateImage = async () => {
+    const bannerPrompt = form.getValues("bannerPrompt") || form.getValues("title");
+     if (!bannerPrompt) {
+        toast({
+            title: "Title is missing",
+            description: "Please enter a course title or have an AI-generated prompt before generating an image.",
             variant: "destructive"
         });
         return;
     }
     setIsGeneratingImage(true);
     try {
-        const result = await generateImage({ prompt: title });
+        const result = await generateImage({ prompt: bannerPrompt });
         form.setValue("imageUrl", result.imageUrl, { shouldValidate: true });
         toast({ title: "Success!", description: "AI banner generated successfully." });
     } catch (error) {
@@ -90,44 +125,21 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
     }
   }
 
-  const handleGenerateDescription = async () => {
-    const title = form.getValues("title");
-    if (!title) {
-      toast({
-        title: "Title is missing",
-        description: "Please enter a course title before generating a description.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsGeneratingDesc(true);
-    try {
-      const result = await generateDescription({ title });
-      form.setValue("description", result.description, { shouldValidate: true });
-      toast({ title: "Success!", description: "AI description generated successfully." });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate AI description.",
-        variant: "destructive",
-      });
-      console.error("Description generation failed:", error);
-    } finally {
-      setIsGeneratingDesc(false);
-    }
-  };
-
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true);
     try {
       const url = course ? `/api/courses/${(course as any)._id}` : '/api/courses';
       const method = course ? 'PUT' : 'POST';
 
+      const finalValues = { ...values };
+      // @ts-ignore
+      delete finalValues.bannerPrompt;
+
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify(finalValues),
       });
 
       if (!res.ok) {
@@ -150,7 +162,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
     }
   }
   
-  const isGenerating = isGeneratingImage || isGeneratingDesc;
+  const isGenerating = isGeneratingImage || isAutofilling;
 
   return (
     <Card>
@@ -163,9 +175,15 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Advanced React" {...field} />
-                  </FormControl>
+                   <div className="flex items-center gap-2">
+                    <FormControl>
+                      <Input placeholder="Advanced React" {...field} />
+                    </FormControl>
+                    <Button type="button" variant="outline" onClick={handleAutofill} disabled={isGenerating}>
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        {isAutofilling ? 'Thinking...' : 'AI Autofill'}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -203,19 +221,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Description</FormLabel>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleGenerateDescription}
-                      disabled={isGeneratingDesc || isGeneratingImage}
-                    >
-                      <Wand2 className="mr-2 h-4 w-4" />
-                      {isGeneratingDesc ? 'Generating...' : 'AI Generate'}
-                    </Button>
-                  </div>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="A deep dive into React hooks..."
@@ -255,35 +261,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                     )}
                 />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                    control={form.control}
-                    name="rating"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Rating</FormLabel>
-                        <FormControl>
-                        <Input type="number" step="0.1" placeholder="4.8" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="studentsEnrolled"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Students Enrolled</FormLabel>
-                        <FormControl>
-                        <Input type="number" placeholder="1204" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-            </div>
-            <FormField
+             <FormField
               control={form.control}
               name="imageUrl"
               render={({ field }) => (
@@ -293,7 +271,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                     <FormControl>
                       <Input placeholder="https://placehold.co/600x400.png" {...field} />
                     </FormControl>
-                    <Button type="button" variant="outline" onClick={handleGenerateImage} disabled={isGeneratingImage || isGeneratingDesc}>
+                    <Button type="button" variant="outline" onClick={handleGenerateImage} disabled={isGenerating}>
                         <Wand2 className="mr-2 h-4 w-4" />
                         {isGeneratingImage ? 'Generating...' : 'AI Generate'}
                     </Button>
