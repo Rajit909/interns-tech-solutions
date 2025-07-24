@@ -1,17 +1,15 @@
+
 'use client';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Bold, Italic, Underline } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Separator } from '@/components/ui/separator';
 
-type RichTextEditorProps = {
+type RichTextEditorProps = Omit<React.ComponentPropsWithoutRef<'div'>, 'onChange'> & {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  className?: string;
-  [key: string]: any;
 };
 
 const Toolbar = ({ editor }: { editor: HTMLDivElement | null }) => {
@@ -61,14 +59,21 @@ const Toolbar = ({ editor }: { editor: HTMLDivElement | null }) => {
 };
 
 export const RichTextEditor = React.forwardRef<HTMLDivElement, RichTextEditorProps>(
-  ({ value, onChange, placeholder, className, ...props }, ref) => {
+  ({ value, onChange, placeholder, className, ...props }, fwdRef) => {
     const editorRef = React.useRef<HTMLDivElement>(null);
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useImperativeHandle(fwdRef, () => editorRef.current as HTMLDivElement);
+    
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
       onChange(event.currentTarget.innerHTML);
     };
-
-    React.useImperativeHandle(ref, () => editorRef.current as HTMLDivElement);
+    
+    const Cmp = isMounted ? 'div' : 'div';
 
     return (
       <div
@@ -78,13 +83,12 @@ export const RichTextEditor = React.forwardRef<HTMLDivElement, RichTextEditorPro
         )}
       >
         <Toolbar editor={editorRef.current} />
-        <div
+        <Cmp
           ref={editorRef}
           contentEditable
           onInput={handleInput}
           dangerouslySetInnerHTML={{ __html: value }}
           className="min-h-[150px] w-full p-3 text-base placeholder:text-muted-foreground prose prose-sm dark:prose-invert max-w-none"
-          placeholder={placeholder}
           {...props}
         />
       </div>
