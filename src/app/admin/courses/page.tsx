@@ -32,8 +32,10 @@ export default function AdminCoursesPage() {
   };
 
   useEffect(() => {
-    fetchCourses();
-  }, []);
+    if (view === 'table') {
+      fetchCourses();
+    }
+  }, [view]);
 
   const handleAddClick = () => {
     setEditingCourse(null);
@@ -69,7 +71,6 @@ export default function AdminCoursesPage() {
 
 
   const handleSave = async () => {
-    await fetchCourses();
     setView('table');
   };
 

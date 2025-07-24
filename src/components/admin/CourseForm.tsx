@@ -15,22 +15,24 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import type { ICourse } from "@/models/Course"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
+import { Wand2 } from "lucide-react"
+import { generateImage } from "@/ai/flows/generate-image-flow"
+import { RichTextEditor } from "@/components/shared/RichTextEditor"
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   category: z.string().min(2, "Category is required."),
   instructor: z.string().min(2, "Instructor name is required."),
-  description: z.string().min(10, "Description must be at least 10 characters."),
+  description: z.string().min(10, "Description must be at least 10 characters.").trim(),
   duration: z.string().min(1, "Duration is required."),
   price: z.coerce.number().min(0, "Price must be a positive number."),
   rating: z.coerce.number().min(0).max(5, "Rating must be between 0 and 5."),
   studentsEnrolled: z.coerce.number().min(0, "Students enrolled must be a positive number."),
-  imageUrl: z.string().url("Please enter a valid URL."),
+  imageUrl: z.string().url("Please enter a valid URL or generate one."),
 });
 
 type CourseFormProps = {
@@ -41,6 +43,7 @@ type CourseFormProps = {
 
 export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,6 +60,33 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
       imageUrl: course?.imageUrl || "",
     },
   })
+
+  async function handleGenerateImage() {
+    const title = form.getValues("title");
+    if (!title) {
+        toast({
+            title: "Title is missing",
+            description: "Please enter a course title before generating an image.",
+            variant: "destructive"
+        });
+        return;
+    }
+    setIsGenerating(true);
+    try {
+        const result = await generateImage({ prompt: title });
+        form.setValue("imageUrl", result.imageUrl, { shouldValidate: true });
+        toast({ title: "Success!", description: "AI banner generated successfully." });
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Failed to generate AI banner.",
+            variant: "destructive"
+        });
+        console.error("Image generation failed:", error);
+    } finally {
+        setIsGenerating(false);
+    }
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -143,7 +173,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="A deep dive into React hooks..." {...field} />
+                    <RichTextEditor placeholder="A deep dive into React hooks..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -210,19 +240,25 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://placehold.co/600x400.png" {...field} />
-                  </FormControl>
+                  <FormLabel>Course Banner URL</FormLabel>
+                  <div className="flex items-center gap-2">
+                    <FormControl>
+                      <Input placeholder="https://placehold.co/600x400.png" {...field} />
+                    </FormControl>
+                    <Button type="button" variant="outline" onClick={handleGenerateImage} disabled={isGenerating}>
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        {isGenerating ? 'Generating...' : 'AI Generate'}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+                <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading || isGenerating}>
                     Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading || isGenerating}>
                     {isLoading ? 'Saving...' : 'Save Course'}
                 </Button>
             </div>
