@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarInset,
 } from "@/components/ui/sidebar"
 import { Logo } from "@/components/shared/Logo"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -98,7 +99,7 @@ export default function AdminLayout({
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex-1">
+        <div className="flex flex-col flex-1 w-full">
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 p-4 backdrop-blur">
             <SidebarTrigger />
             <div className="flex items-center gap-4">
@@ -108,7 +109,7 @@ export default function AdminLayout({
               </Avatar>
             </div>
           </header>
-          <main className="p-4 md:p-6">{children}</main>
+          <main className="flex-1 p-4 md:p-6">{children}</main>
         </div>
       </div>
     </SidebarProvider>
