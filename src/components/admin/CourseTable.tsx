@@ -34,7 +34,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import type { ICourse } from '@/models/Course';
 import type { IInternship } from '@/models/Internship';
 
-type DbListing = (ICourse | IInternship) & { _id: string };
+type DbListing = (ICourse | IInternship) & { _id: string; type: 'Course' | 'Internship' };
 
 type CourseTableProps = {
   listings: (ICourse | IInternship)[]
@@ -80,25 +80,27 @@ export function CourseTable({ listings, onEdit, onDelete }: CourseTableProps) {
             <TableBody>
               {allListings.map((listing) => {
                 const dbListing = listing as DbListing;
+                const isCourse = 'instructor' in dbListing;
+
                 return (
                   <TableRow key={dbListing._id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Image src={listing.imageUrl} alt={listing.title} width={60} height={40} className="hidden rounded-md object-cover sm:block" data-ai-hint="course thumbnail" />
+                        <Image src={dbListing.imageUrl} alt={dbListing.title} width={60} height={40} className="hidden rounded-md object-cover sm:block" data-ai-hint="course thumbnail" />
                         <div>
-                          <div className="font-medium">{listing.title}</div>
-                          <div className="text-sm text-muted-foreground">{listing.type}</div>
+                          <div className="font-medium">{dbListing.title}</div>
+                          <div className="text-sm text-muted-foreground">{isCourse ? 'Course' : 'Internship'}</div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      <Badge variant="outline">{listing.category}</Badge>
+                      <Badge variant="outline">{dbListing.category}</Badge>
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">{listing.type === 'Course' ? (listing as ICourse).instructor : (listing as IInternship).organization}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{isCourse ? (dbListing as ICourse).instructor : (dbListing as IInternship).organization}</TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {listing.type === 'Course'
-                        ? `${(listing as ICourse).studentsEnrolled} enrolled`
-                        : `${(listing as IInternship).applicants} applicants`}
+                      {isCourse
+                        ? `${(dbListing as ICourse).studentsEnrolled} enrolled`
+                        : `${(dbListing as IInternship).applicants} applicants`}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
