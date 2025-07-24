@@ -1,41 +1,24 @@
 
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import useSWR, { mutate } from 'swr';
 import { PlusCircle } from "lucide-react";
 import { CourseTable } from "@/components/admin/CourseTable";
 import { Button } from "@/components/ui/button";
 import { CourseForm } from "@/components/admin/CourseForm";
 import type { ICourse } from "@/models/Course";
 import { useToast } from "@/hooks/use-toast";
+import { fetcher } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminCoursesPage() {
-  const [courses, setCourses] = useState<ICourse[]>([]);
   const [editingCourse, setEditingCourse] = useState<ICourse | null>(null);
   const [view, setView] = useState<'table' | 'form'>('table');
   const { toast } = useToast();
 
-  const fetchCourses = async () => {
-    try {
-      const res = await fetch('/api/courses', { cache: "no-store" });
-      if (!res.ok) throw new Error("Failed to fetch courses");
-      const data = await res.json();
-      setCourses(data.courses);
-    } catch (error) {
-      console.error("Error loading courses: ", error);
-      toast({
-        title: "Error",
-        description: "Failed to load courses.",
-        variant: "destructive"
-      })
-    }
-  };
-
-  useEffect(() => {
-    if (view === 'table') {
-      fetchCourses();
-    }
-  }, [view]);
+  const { data, error, isLoading } = useSWR('/api/courses', fetcher);
+  const courses: ICourse[] = data?.courses || [];
 
   const handleAddClick = () => {
     setEditingCourse(null);
@@ -58,7 +41,7 @@ export default function AdminCoursesPage() {
       }
       
       toast({ title: 'Success', description: 'Course deleted successfully.' });
-      await fetchCourses(); // Refresh the list
+      mutate('/api/courses'); // Revalidate the course list
     } catch (error) {
        toast({
         title: 'Error',
@@ -72,11 +55,21 @@ export default function AdminCoursesPage() {
 
   const handleSave = async () => {
     setView('table');
+    mutate('/api/courses'); // Revalidate the course list
   };
 
   const handleCancel = () => {
     setView('table');
   };
+  
+  if (error) {
+    toast({
+        title: "Error",
+        description: "Failed to load courses.",
+        variant: "destructive"
+    })
+    return <div>Failed to load courses.</div>
+  }
 
   return (
     <div className="space-y-6">
@@ -89,11 +82,19 @@ export default function AdminCoursesPage() {
               Add Course
             </Button>
           </div>
-          <CourseTable 
-            listings={courses}
-            onEdit={handleEditClick}
-            onDelete={handleDelete}
-          />
+          {isLoading ? (
+             <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+             </div>
+          ) : (
+            <CourseTable 
+              listings={courses}
+              onEdit={handleEditClick}
+              onDelete={handleDelete}
+            />
+          )}
         </>
       ) : (
         <>

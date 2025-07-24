@@ -1,30 +1,30 @@
+'use client';
+
+import useSWR from 'swr';
 import { UserTable } from "@/components/admin/UserTable";
 import type { IUser } from "@/models/User";
+import { fetcher } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
-async function getUsers() {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/users`, {
-      cache: "no-store",
-    });
+export default function AdminUsersPage() {
+  const { data, error, isLoading } = useSWR('/api/users', fetcher);
+  
+  const users: IUser[] = data?.users || [];
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch users");
-    }
-
-    return res.json();
-  } catch (error) {
-    console.error("Error loading users: ", error);
-    return { users: [] };
-  }
-}
-
-export default async function AdminUsersPage() {
-  const { users } : { users: IUser[] } = await getUsers();
+  if (error) return <div>Failed to load users.</div>;
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">Manage Users</h1>
-      <UserTable users={users} />
+      {isLoading ? (
+        <div className="space-y-2">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+        </div>
+      ) : (
+        <UserTable users={users} />
+      )}
     </div>
   );
 }
