@@ -177,7 +177,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                   <FormLabel>Title</FormLabel>
                    <div className="flex items-center gap-2">
                     <FormControl>
-                      <Input placeholder="Advanced React" {...field} />
+                      <Input placeholder="Advanced React" {...field} disabled={isGenerating}/>
                     </FormControl>
                     <Button type="button" variant="outline" onClick={handleAutofill} disabled={isGenerating}>
                         <Wand2 className="mr-2 h-4 w-4" />
@@ -196,7 +196,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                   <FormItem>
                     <FormLabel>Category</FormLabel>
                     <FormControl>
-                      <Input placeholder="Web Development" {...field} />
+                      <Input placeholder="Web Development" {...field} disabled={isGenerating} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -209,7 +209,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                   <FormItem>
                     <FormLabel>Instructor</FormLabel>
                     <FormControl>
-                      <Input placeholder="Jane Doe" {...field} />
+                      <Input placeholder="Jane Doe" {...field} disabled={isGenerating}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -227,6 +227,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                       placeholder="A deep dive into React hooks..."
                       className="min-h-[150px]"
                       {...field}
+                      disabled={isGenerating}
                     />
                   </FormControl>
                   <FormMessage />
@@ -241,7 +242,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                     <FormItem>
                         <FormLabel>Duration</FormLabel>
                         <FormControl>
-                        <Input placeholder="8 Weeks" {...field} />
+                        <Input placeholder="8 Weeks" {...field} disabled={isGenerating}/>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -254,7 +255,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                     <FormItem>
                         <FormLabel>Price</FormLabel>
                         <FormControl>
-                        <Input type="number" placeholder="199.99" {...field} />
+                        <Input type="number" placeholder="199.99" {...field} disabled={isGenerating}/>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -269,7 +270,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                   <FormLabel>Course Banner URL</FormLabel>
                   <div className="flex items-center gap-2">
                     <FormControl>
-                      <Input placeholder="https://placehold.co/600x400.png" {...field} />
+                      <Input placeholder="https://placehold.co/600x400.png" {...field} disabled={isGenerating}/>
                     </FormControl>
                     <Button type="button" variant="outline" onClick={handleGenerateImage} disabled={isGenerating}>
                         <Wand2 className="mr-2 h-4 w-4" />
@@ -281,7 +282,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
               )}
             />
             <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving || isGenerating}>
+                <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>
                     Cancel
                 </Button>
                 <Button type="submit" disabled={isSaving || isGenerating}>

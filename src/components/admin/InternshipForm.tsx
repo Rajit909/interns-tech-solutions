@@ -178,7 +178,7 @@ export function InternshipForm({ internship, onSave, onCancel }: InternshipFormP
                   <FormLabel>Title</FormLabel>
                    <div className="flex items-center gap-2">
                     <FormControl>
-                      <Input placeholder="Frontend Developer Intern" {...field} />
+                      <Input placeholder="Frontend Developer Intern" {...field} disabled={isGenerating}/>
                     </FormControl>
                     <Button type="button" variant="outline" onClick={handleAutofill} disabled={isGenerating}>
                         <Wand2 className="mr-2 h-4 w-4" />
@@ -197,7 +197,7 @@ export function InternshipForm({ internship, onSave, onCancel }: InternshipFormP
                   <FormItem>
                     <FormLabel>Category</FormLabel>
                     <FormControl>
-                      <Input placeholder="Software Engineering" {...field} />
+                      <Input placeholder="Software Engineering" {...field} disabled={isGenerating}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -210,7 +210,7 @@ export function InternshipForm({ internship, onSave, onCancel }: InternshipFormP
                   <FormItem>
                     <FormLabel>Organization</FormLabel>
                     <FormControl>
-                      <Input placeholder="Innovate Inc." {...field} />
+                      <Input placeholder="Innovate Inc." {...field} disabled={isGenerating}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -228,6 +228,7 @@ export function InternshipForm({ internship, onSave, onCancel }: InternshipFormP
                       placeholder="Join our dynamic team to build cutting-edge web applications..."
                       className="min-h-[150px]"
                       {...field}
+                      disabled={isGenerating}
                     />
                   </FormControl>
                   <FormMessage />
@@ -242,7 +243,7 @@ export function InternshipForm({ internship, onSave, onCancel }: InternshipFormP
                     <FormItem>
                         <FormLabel>Duration</FormLabel>
                         <FormControl>
-                        <Input placeholder="3 Months" {...field} />
+                        <Input placeholder="3 Months" {...field} disabled={isGenerating}/>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -255,7 +256,7 @@ export function InternshipForm({ internship, onSave, onCancel }: InternshipFormP
                     <FormItem>
                         <FormLabel>Stipend</FormLabel>
                         <FormControl>
-                        <Input placeholder="$2500/month" {...field} />
+                        <Input placeholder="$2500/month" {...field} disabled={isGenerating}/>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -268,7 +269,7 @@ export function InternshipForm({ internship, onSave, onCancel }: InternshipFormP
                     <FormItem>
                         <FormLabel>Location</FormLabel>
                         <FormControl>
-                        <Input placeholder="Remote" {...field} />
+                        <Input placeholder="Remote" {...field} disabled={isGenerating}/>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -283,7 +284,7 @@ export function InternshipForm({ internship, onSave, onCancel }: InternshipFormP
                   <FormLabel>Banner URL</FormLabel>
                   <div className="flex items-center gap-2">
                     <FormControl>
-                      <Input placeholder="https://placehold.co/600x400.png" {...field} />
+                      <Input placeholder="https://placehold.co/600x400.png" {...field} disabled={isGenerating}/>
                     </FormControl>
                     <Button type="button" variant="outline" onClick={handleGenerateImage} disabled={isGenerating}>
                         <Wand2 className="mr-2 h-4 w-4" />
@@ -295,7 +296,7 @@ export function InternshipForm({ internship, onSave, onCancel }: InternshipFormP
               )}
             />
             <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving || isGenerating}>
+                <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>
                     Cancel
                 </Button>
                 <Button type="submit" disabled={isSaving || isGenerating}>
