@@ -22,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Wand2 } from "lucide-react"
 import { generateImage } from "@/ai/flows/generate-image-flow"
 import { Textarea } from "@/components/ui/textarea"
+import { generateDescription } from "@/ai/flows/generate-description-flow"
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -42,8 +43,9 @@ type CourseFormProps = {
 }
 
 export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -61,7 +63,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
     },
   })
 
-  async function handleGenerateImage() {
+  const handleGenerateImage = async () => {
     const title = form.getValues("title");
     if (!title) {
         toast({
@@ -71,7 +73,7 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
         });
         return;
     }
-    setIsGenerating(true);
+    setIsGeneratingImage(true);
     try {
         const result = await generateImage({ prompt: title });
         form.setValue("imageUrl", result.imageUrl, { shouldValidate: true });
@@ -84,12 +86,40 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
         });
         console.error("Image generation failed:", error);
     } finally {
-        setIsGenerating(false);
+        setIsGeneratingImage(false);
     }
   }
 
+  const handleGenerateDescription = async () => {
+    const title = form.getValues("title");
+    if (!title) {
+      toast({
+        title: "Title is missing",
+        description: "Please enter a course title before generating a description.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsGeneratingDesc(true);
+    try {
+      const result = await generateDescription({ title });
+      form.setValue("description", result.description, { shouldValidate: true });
+      toast({ title: "Success!", description: "AI description generated successfully." });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate AI description.",
+        variant: "destructive",
+      });
+      console.error("Description generation failed:", error);
+    } finally {
+      setIsGeneratingDesc(false);
+    }
+  };
+
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
+    setIsSaving(true);
     try {
       const url = course ? `/api/courses/${(course as any)._id}` : '/api/courses';
       const method = course ? 'PUT' : 'POST';
@@ -116,9 +146,11 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
         variant: "destructive"
       });
     } finally {
-        setIsLoading(false);
+        setIsSaving(false);
     }
   }
+  
+  const isGenerating = isGeneratingImage || isGeneratingDesc;
 
   return (
     <Card>
@@ -171,7 +203,19 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Description</FormLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGenerateDescription}
+                      disabled={isGeneratingDesc || isGeneratingImage}
+                    >
+                      <Wand2 className="mr-2 h-4 w-4" />
+                      {isGeneratingDesc ? 'Generating...' : 'AI Generate'}
+                    </Button>
+                  </div>
                   <FormControl>
                     <Textarea
                       placeholder="A deep dive into React hooks..."
@@ -249,9 +293,9 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
                     <FormControl>
                       <Input placeholder="https://placehold.co/600x400.png" {...field} />
                     </FormControl>
-                    <Button type="button" variant="outline" onClick={handleGenerateImage} disabled={isGenerating}>
+                    <Button type="button" variant="outline" onClick={handleGenerateImage} disabled={isGeneratingImage || isGeneratingDesc}>
                         <Wand2 className="mr-2 h-4 w-4" />
-                        {isGenerating ? 'Generating...' : 'AI Generate'}
+                        {isGeneratingImage ? 'Generating...' : 'AI Generate'}
                     </Button>
                   </div>
                   <FormMessage />
@@ -259,11 +303,11 @@ export function CourseForm({ course, onSave, onCancel }: CourseFormProps) {
               )}
             />
             <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading || isGenerating}>
+                <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving || isGenerating}>
                     Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading || isGenerating}>
-                    {isLoading ? 'Saving...' : 'Save Course'}
+                <Button type="submit" disabled={isSaving || isGenerating}>
+                    {isSaving ? 'Saving...' : 'Save Course'}
                 </Button>
             </div>
           </form>
