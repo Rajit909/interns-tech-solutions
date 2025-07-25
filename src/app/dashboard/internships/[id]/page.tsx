@@ -1,18 +1,44 @@
+
+'use client';
+
 import Image from 'next/image';
+import useSWR from 'swr';
 import { notFound } from 'next/navigation';
-import { listings } from '@/lib/mockData';
-import type { Internship } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, MapPin, Calendar, Users, Bookmark, MessageSquare } from 'lucide-react';
+import type { IInternship } from '@/models/Internship';
+import { fetcher } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function InternshipDetailPage({ params }: { params: { id: string } }) {
-  const listing = listings.find((l) => l.id === params.id && l.type === 'Internship') as Internship | undefined;
+  const { data, error, isLoading } = useSWR(`/api/internships/${params.id}`, fetcher);
 
-  if (!listing) {
+  if (isLoading) {
+    return (
+        <div className="container mx-auto max-w-5xl py-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                <div className="lg:col-span-2 space-y-6">
+                    <Skeleton className="h-6 w-1/4" />
+                    <Skeleton className="h-12 w-3/4" />
+                    <Skeleton className="h-10 w-1/2" />
+                    <Skeleton className="aspect-video w-full" />
+                    <Skeleton className="h-40 w-full" />
+                </div>
+                <div className="space-y-6">
+                    <Skeleton className="h-64 w-full" />
+                </div>
+            </div>
+        </div>
+    );
+  }
+
+  if (error || !data || !data.internship) {
     notFound();
   }
+
+  const listing: IInternship = data.internship;
 
   return (
     <div className="container mx-auto max-w-5xl py-8">

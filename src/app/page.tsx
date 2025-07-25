@@ -1,8 +1,11 @@
+
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Briefcase, Filter, Search } from 'lucide-react';
+import useSWR from 'swr';
 
-import { listings } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,10 +18,43 @@ import {
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { CourseCard } from '@/components/shared/CourseCard';
+import { fetcher } from '@/lib/utils';
+import type { ICourse } from '@/models/Course';
+import type { IInternship } from '@/models/Internship';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function FeaturedListings({ listings, type }: { listings: (ICourse[] | IInternship[] | undefined), type: 'Course' | 'Internship' }) {
+    if (!listings) {
+        return (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                        <Skeleton className="h-48 w-full" />
+                        <Skeleton className="h-6 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                    </div>
+                ))}
+            </div>
+        )
+    }
+
+    return (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {listings.slice(0, 4).map((listing) => (
+                <CourseCard key={(listing as any)._id} listing={listing} />
+            ))}
+        </div>
+    )
+}
+
 
 export default function Home() {
-  const courses = listings.filter((l) => l.type === 'Course');
-  const internships = listings.filter((l) => l.type === 'Internship');
+  const { data: coursesData } = useSWR('/api/courses', fetcher);
+  const { data: internshipsData } = useSWR('/api/internships', fetcher);
+  
+  const courses = coursesData?.courses;
+  const internships = internshipsData?.internships;
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -86,11 +122,7 @@ export default function Home() {
                 Featured Courses
               </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {courses.slice(0, 4).map((listing) => (
-                <CourseCard key={listing.id} listing={listing} />
-              ))}
-            </div>
+            <FeaturedListings listings={courses} type="Course" />
             <div className="mt-12 text-center">
               <Button variant="outline" size="lg" asChild>
                 <Link href="/dashboard/courses">View All Courses <ArrowRight className="ml-2" /></Link>
@@ -107,11 +139,7 @@ export default function Home() {
                 Latest Internships
               </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {internships.slice(0, 4).map((listing) => (
-                <CourseCard key={listing.id} listing={listing} />
-              ))}
-            </div>
+            <FeaturedListings listings={internships} type="Internship" />
             <div className="mt-12 text-center">
               <Button variant="outline" size="lg" asChild>
                 <Link href="/dashboard/internships">View All Internships <ArrowRight className="ml-2" /></Link>

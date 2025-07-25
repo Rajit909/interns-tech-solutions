@@ -1,10 +1,17 @@
+
+'use client';
+
+import useSWR from 'swr';
 import { AiRecommender } from "@/components/student/AiRecommender";
 import { CourseCard } from "@/components/shared/CourseCard";
-import { listings } from "@/lib/mockData";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { fetcher } from '@/lib/utils';
+import type { ICourse } from '@/models/Course';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function StudentDashboardPage() {
-    const enrolledCourses = listings.filter(l => l.type === 'Course').slice(0, 2);
+    const { data, error, isLoading } = useSWR('/api/courses', fetcher);
+    const enrolledCourses: ICourse[] = data?.courses || [];
 
     return (
         <div className="space-y-8">
@@ -17,18 +24,32 @@ export default function StudentDashboardPage() {
             
             <section>
                 <h2 className="text-2xl font-semibold tracking-tight mb-4">My Courses</h2>
-                {enrolledCourses.length > 0 ? (
+                {isLoading && (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {enrolledCourses.map((listing) => (
-                            <CourseCard key={listing.id} listing={listing} />
+                         {[...Array(2)].map((_, i) => (
+                            <div key={i} className="space-y-2">
+                                <Skeleton className="h-48 w-full" />
+                                <Skeleton className="h-6 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                            </div>
                         ))}
                     </div>
-                ) : (
-                    <Card>
-                        <CardContent className="p-6">
-                            <p className="text-muted-foreground">You are not enrolled in any courses yet.</p>
-                        </CardContent>
-                    </Card>
+                )}
+                {error && <p className="text-destructive">Failed to load courses.</p>}
+                {!isLoading && !error && (
+                    enrolledCourses.length > 0 ? (
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            {enrolledCourses.slice(0, 2).map((listing) => (
+                                <CourseCard key={(listing as any)._id} listing={listing} />
+                            ))}
+                        </div>
+                    ) : (
+                        <Card>
+                            <CardContent className="p-6">
+                                <p className="text-muted-foreground">You are not enrolled in any courses yet.</p>
+                            </CardContent>
+                        </Card>
+                    )
                 )}
             </section>
         </div>
