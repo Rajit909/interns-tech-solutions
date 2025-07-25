@@ -36,4 +36,5 @@ export type User = {
   status: 'active' | 'blocked';
   subscription: 'free' | 'premium' | 'none';
   joinedDate: string;
+  imageUrl: string;
 };

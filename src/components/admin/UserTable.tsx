@@ -84,7 +84,7 @@ export function UserTable({ users, onEdit, onDelete, onStatusToggle }: UserTable
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="hidden sm:flex">
-                          <AvatarImage src={`https://i.pravatar.cc/40?u=${user.email}`} />
+                          <AvatarImage src={user.imageUrl} alt={user.name} />
                           <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>

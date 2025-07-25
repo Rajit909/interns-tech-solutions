@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   await connectDB();
   try {
     const body = await request.json();
-    const { name, email, password, role } = body;
+    const { name, email, password, role, imageUrl } = body;
 
     if (!name || !email || !password || !role) {
       return NextResponse.json({ error: 'Please provide all required fields' }, { status: 400 });
@@ -35,6 +35,7 @@ export async function POST(request: Request) {
         email,
         password: hashedPassword,
         role,
+        imageUrl,
         joinedDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD
     });
 

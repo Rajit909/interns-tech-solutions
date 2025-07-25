@@ -8,6 +8,7 @@ export interface IUser extends Document {
   status: 'active' | 'blocked';
   subscription: 'free' | 'premium' | 'none';
   joinedDate: string;
+  imageUrl: string;
 }
 
 const UserSchema: Schema = new Schema({
@@ -18,6 +19,7 @@ const UserSchema: Schema = new Schema({
   status: { type: String, enum: ['active', 'blocked'], default: 'active' },
   subscription: { type: String, enum: ['free', 'premium', 'none'], default: 'none' },
   joinedDate: { type: String, required: true },
+  imageUrl: { type: String, default: 'https://placehold.co/40x40.png' },
 });
 
 export default models.User || mongoose.model<IUser>('User', UserSchema);
