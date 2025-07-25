@@ -23,8 +23,8 @@ import type { ICourse } from '@/models/Course';
 import type { IInternship } from '@/models/Internship';
 import { Skeleton } from '@/components/ui/skeleton';
 
-function FeaturedListings({ listings, type }: { listings: (ICourse[] | IInternship[] | undefined), type: 'Course' | 'Internship' }) {
-    if (!listings) {
+function FeaturedListings({ listings, isLoading, type }: { listings: (ICourse[] | IInternship[] | undefined), isLoading: boolean, type: 'Course' | 'Internship' }) {
+    if (isLoading) {
         return (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {[...Array(4)].map((_, i) => (
@@ -38,6 +38,10 @@ function FeaturedListings({ listings, type }: { listings: (ICourse[] | IInternsh
         )
     }
 
+    if (!listings) {
+        return <p>No {type.toLowerCase()}s found.</p>
+    }
+
     return (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {listings.slice(0, 4).map((listing) => (
@@ -49,8 +53,8 @@ function FeaturedListings({ listings, type }: { listings: (ICourse[] | IInternsh
 
 
 export default function Home() {
-  const { data: coursesData } = useSWR('/api/courses', fetcher);
-  const { data: internshipsData } = useSWR('/api/internships', fetcher);
+  const { data: coursesData, isLoading: coursesLoading } = useSWR('/api/courses', fetcher);
+  const { data: internshipsData, isLoading: internshipsLoading } = useSWR('/api/internships', fetcher);
   
   const courses = coursesData?.courses;
   const internships = internshipsData?.internships;
@@ -122,7 +126,7 @@ export default function Home() {
                 Featured Courses
               </h2>
             </div>
-            <FeaturedListings listings={courses} type="Course" />
+            <FeaturedListings listings={courses} isLoading={coursesLoading} type="Course" />
             <div className="mt-12 text-center">
               <Button variant="outline" size="lg" asChild>
                 <Link href="/dashboard/courses">View All Courses <ArrowRight className="ml-2" /></Link>
@@ -139,7 +143,7 @@ export default function Home() {
                 Latest Internships
               </h2>
             </div>
-            <FeaturedListings listings={internships} type="Internship" />
+            <FeaturedListings listings={internships} isLoading={internshipsLoading} type="Internship" />
             <div className="mt-12 text-center">
               <Button variant="outline" size="lg" asChild>
                 <Link href="/dashboard/internships">View All Internships <ArrowRight className="ml-2" /></Link>
