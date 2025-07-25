@@ -1,6 +1,8 @@
+
 'use client'
 
-import { MoreHorizontal, UserX, UserCheck } from 'lucide-react'
+import * as React from 'react'
+import { MoreHorizontal, UserX, UserCheck, Edit, Trash2 } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -13,8 +15,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -23,12 +36,32 @@ import type { IUser } from '@/models/User'
 
 type UserTableProps = {
   users: IUser[]
+  onEdit: (user: IUser) => void
+  onDelete: (id: string) => void
+  onStatusToggle: (user: IUser) => void
 }
 
-export function UserTable({ users }: UserTableProps) {
+export function UserTable({ users, onEdit, onDelete, onStatusToggle }: UserTableProps) {
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false);
+  const [selectedUserId, setSelectedUserId] = React.useState<string | null>(null);
+
   const allUsers = Array.isArray(users) ? users : [];
 
+   const handleDeleteClick = (id: string) => {
+    setSelectedUserId(id);
+    setIsAlertOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedUserId) {
+      onDelete(selectedUserId);
+    }
+    setIsAlertOpen(false);
+    setSelectedUserId(null);
+  };
+
   return (
+    <>
     <Card>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
@@ -83,13 +116,29 @@ export function UserTable({ users }: UserTableProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <UserX className="mr-2 h-4 w-4" />
-                            Block
+                           <DropdownMenuItem onClick={() => onEdit(user)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit User
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <UserCheck className="mr-2 h-4 w-4" />
-                            Unblock
+                          <DropdownMenuItem onClick={() => onStatusToggle(user)}>
+                            {user.status === 'active' ? (
+                                <>
+                                 <UserX className="mr-2 h-4 w-4" />
+                                 Block User
+                                </>
+                            ) : (
+                                <>
+                                <UserCheck className="mr-2 h-4 w-4" />
+                                Unblock User
+                                </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => handleDeleteClick(dbUser._id)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete User
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -102,5 +151,22 @@ export function UserTable({ users }: UserTableProps) {
         </div>
       </CardContent>
     </Card>
+
+    <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              user from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedUserId(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
