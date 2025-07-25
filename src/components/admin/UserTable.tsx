@@ -37,6 +37,7 @@ export function UserTable({ users }: UserTableProps) {
               <TableRow>
                 <TableHead>User</TableHead>
                 <TableHead className="hidden sm:table-cell">Status</TableHead>
+                <TableHead className="hidden sm:table-cell">Role</TableHead>
                 <TableHead className="hidden lg:table-cell">Subscription</TableHead>
                 <TableHead className="hidden md:table-cell">Joined Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -62,6 +63,11 @@ export function UserTable({ users }: UserTableProps) {
                     <TableCell className="hidden sm:table-cell">
                       <Badge variant={user.status === 'active' ? 'default' : 'destructive'} className={user.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : ''}>
                         {user.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <Badge variant={user.role === 'admin' ? 'destructive' : 'secondary'}>
+                        {user.role}
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
