@@ -36,7 +36,7 @@ const prompt = ai.definePrompt({
   name: 'suggestInternshipDetailsPrompt',
   input: {schema: SuggestInternshipDetailsInputSchema},
   output: {schema: SuggestInternshipDetailsOutputSchema},
-  prompt: `You are an expert career advisor and copywriter for an online learning platform called Nexus Learning.
+  prompt: `You are an expert career advisor and copywriter for an online learning platform called Intern Tech Solutions.
 
   An employer has provided a title for a new internship. Your task is to generate all the necessary details for the internship posting form. The details should be realistic, professional, and appealing to students.
 

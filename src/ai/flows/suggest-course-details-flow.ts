@@ -35,7 +35,7 @@ const prompt = ai.definePrompt({
   name: 'suggestCourseDetailsPrompt',
   input: {schema: SuggestCourseDetailsInputSchema},
   output: {schema: SuggestCourseDetailsOutputSchema},
-  prompt: `You are an expert curriculum designer and copywriter for an online learning platform called Nexus Learning.
+  prompt: `You are an expert curriculum designer and copywriter for an online learning platform called Intern Tech Solutions.
 
   A course creator has provided a title for a new course. Your task is to generate all the necessary details for the course creation form. The details should be realistic, professional, and compelling.
 

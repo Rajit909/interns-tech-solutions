@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Nexus Learning',
+  title: 'Intern Tech Solutions',
   description: 'Your gateway to the future of education and career development.',
 };
 

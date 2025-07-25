@@ -71,7 +71,7 @@ export default function Home() {
                 Find Your Future. <span className="text-primary">Today.</span>
               </h1>
               <p className="mx-auto max-w-3xl text-lg text-muted-foreground md:text-xl">
-                Nexus Learning is your gateway to top-tier online courses and
+                Intern Tech Solutions is your gateway to top-tier online courses and
                 exclusive internships. Start your journey with us and unlock
                 your potential.
               </p>
@@ -157,14 +157,13 @@ export default function Home() {
             <div className="grid items-center gap-12 md:grid-cols-2">
               <div>
                 <h2 className="font-headline text-3xl font-bold tracking-tight">
-                  Why Nexus Learning?
+                  Why Intern Tech Solutions?
                 </h2>
                 <p className="mt-4 text-lg text-muted-foreground">
                   We bridge the gap between education and industry. Our platform
                   is meticulously designed to provide students with skills that
                   matter and opportunities that launch careers. With expert-led
-                  courses and partnerships with leading companies, Nexus
-                  Learning is more than a platform—it&apos;s your career
+                  courses and partnerships with leading companies, Intern Tech Solutions is more than a platform—it&apos;s your career
                   partner.
                 </p>
                 <ul className="mt-6 space-y-4">

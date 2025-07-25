@@ -13,7 +13,7 @@ export function Logo({ className, textClassName, iconClassName }: LogoProps) {
     <Link href="/" className={cn("flex items-center gap-2", className)}>
       <GraduationCap className={cn("h-7 w-7 text-primary", iconClassName)} />
       <span className={cn("text-xl font-bold tracking-tight text-foreground", textClassName)}>
-        Nexus Learning
+        Intern Tech Solutions
       </span>
     </Link>
   );
