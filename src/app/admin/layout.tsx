@@ -15,6 +15,14 @@ import {
 import { Logo } from "@/components/shared/Logo"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
   LayoutDashboard,
   BookMarked,
   Briefcase,
@@ -22,6 +30,7 @@ import {
   BadgeDollarSign,
   LogOut,
   Settings,
+  User,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from 'next/navigation'
@@ -30,6 +39,7 @@ import useSWR from "swr";
 import { fetcher } from "@/lib/utils";
 import type { IUser } from "@/models/User";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 
 const navItems = [
@@ -89,8 +99,8 @@ export default function AdminLayout({
           <SidebarFooter className="p-2">
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Settings">
-                  <Link href="#">
+                <SidebarMenuButton asChild tooltip="Settings" isActive={pathname.startsWith('/admin/settings')}>
+                  <Link href="/admin/settings">
                     <Settings />
                     <span>Settings</span>
                   </Link>
@@ -109,18 +119,57 @@ export default function AdminLayout({
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 p-4 backdrop-blur">
             <SidebarTrigger />
             <div className="flex items-center gap-4">
-               {isLoading ? (
-                <Skeleton className="h-10 w-10 rounded-full" />
-              ) : error || !user ? (
-                 <Avatar>
-                  <AvatarFallback>A</AvatarFallback>
-                </Avatar>
-              ) : (
-                <Avatar>
-                  <AvatarImage src={user.imageUrl} alt={user.name}/>
-                  <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
-              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                     {isLoading ? (
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                    ) : error || !user ? (
+                      <Avatar>
+                        <AvatarFallback>A</AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <Avatar>
+                        <AvatarImage src={user.imageUrl} alt={user.name}/>
+                        <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      {isLoading || error || !user ? (
+                         <div className="flex flex-col space-y-2">
+                            <Skeleton className="h-4 w-[100px]" />
+                            <Skeleton className="h-3 w-[150px]" />
+                        </div>
+                      ) : (
+                        <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{user.name}</p>
+                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                        </div>
+                      )}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/profile">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/settings">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
           <main className="flex-1 p-4 md:p-6">{children}</main>
