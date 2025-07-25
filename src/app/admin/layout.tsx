@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -25,6 +26,10 @@ import {
 import Link from "next/link"
 import { usePathname, useRouter } from 'next/navigation'
 import { useToast } from "@/hooks/use-toast";
+import useSWR from "swr";
+import { fetcher } from "@/lib/utils";
+import type { IUser } from "@/models/User";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 const navItems = [
@@ -43,6 +48,8 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
+  const { data, error, isLoading } = useSWR('/api/admin/me', fetcher);
+  const user: IUser | null = data?.user;
   
   const handleLogout = async () => {
     try {
@@ -102,10 +109,18 @@ export default function AdminLayout({
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 p-4 backdrop-blur">
             <SidebarTrigger />
             <div className="flex items-center gap-4">
-              <Avatar>
-                <AvatarImage src="https://i.pravatar.cc/40?u=admin" />
-                <AvatarFallback>A</AvatarFallback>
-              </Avatar>
+               {isLoading ? (
+                <Skeleton className="h-10 w-10 rounded-full" />
+              ) : error || !user ? (
+                 <Avatar>
+                  <AvatarFallback>A</AvatarFallback>
+                </Avatar>
+              ) : (
+                <Avatar>
+                  <AvatarImage src={user.imageUrl} alt={user.name}/>
+                  <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+              )}
             </div>
           </header>
           <main className="flex-1 p-4 md:p-6">{children}</main>
