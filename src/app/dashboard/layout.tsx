@@ -33,6 +33,7 @@ import {
   LogOut,
   Settings,
 } from "lucide-react"
+import { Button } from "@/components/ui/button";
 
 const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -113,21 +114,21 @@ export default function DashboardLayout({
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link href="/dashboard/profile">
-                        <User className="mr-2" />
-                        Profile
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/dashboard/settings">
-                        <Settings className="mr-2" />
-                        Settings
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                         <Link href="/">
-                            <LogOut className="mr-2" />
-                            Log out
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Log out</span>
                         </Link>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
