@@ -7,6 +7,7 @@ import { z } from "zod"
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon, Wand2 } from "lucide-react"
+import dynamic from "next/dynamic"
 
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -33,6 +34,8 @@ import { generateImage } from "@/ai/flows/generate-image-flow"
 import { Textarea } from "@/components/ui/textarea"
 import { suggestBlogDetails } from "@/ai/flows/suggest-blog-details-flow"
 import { cn } from "@/lib/utils"
+
+const RichTextEditor = dynamic(() => import('../shared/RichTextEditor'), { ssr: false });
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -263,13 +266,12 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Content (HTML supported)</FormLabel>
+                  <FormLabel>Content</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="<p>Start writing your amazing blog post here...</p>"
-                      className="min-h-[250px]"
-                      {...field}
-                      disabled={isGenerating}
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                      readOnly={isGenerating}
                     />
                   </FormControl>
                   <FormMessage />

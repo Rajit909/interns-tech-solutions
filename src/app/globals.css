@@ -57,3 +57,26 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Rich Text Editor Styles */
+.ql-toolbar {
+  @apply rounded-t-md border-b bg-muted;
+}
+.ql-container {
+  @apply rounded-b-md;
+}
+.ql-editor {
+  @apply text-base;
+}
+.dark .ql-toolbar {
+  @apply border-border;
+}
+.dark .ql-snow .ql-stroke {
+  @apply stroke-muted-foreground;
+}
+.dark .ql-snow .ql-picker-label {
+  @apply text-muted-foreground;
+}
+.dark .ql-snow .ql-picker-options {
+  @apply bg-background border-border;
+}
