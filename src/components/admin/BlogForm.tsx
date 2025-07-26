@@ -22,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Wand2 } from "lucide-react"
 import { generateImage } from "@/ai/flows/generate-image-flow"
 import { Textarea } from "@/components/ui/textarea"
+import { suggestBlogDetails } from "@/ai/flows/suggest-blog-details-flow"
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -43,6 +44,7 @@ type BlogFormProps = {
 export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isAutofilling, setIsAutofilling] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -50,11 +52,11 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
     defaultValues: {
       title: post?.title || "",
       slug: post?.slug || "",
-      author: post?.author || "",
+      author: post?.author || "Intern Tech Solutions",
       excerpt: post?.excerpt || "",
       content: post?.content || "",
       imageUrl: post?.imageUrl || "",
-      readTime: post?.readTime || "",
+      readTime: post?.readTime || "5 min read",
       dataAiHint: post?.dataAiHint || "",
     },
   })
@@ -62,12 +64,39 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
   // Auto-generate slug from title
   const title = form.watch("title");
   useEffect(() => {
-    if (title) {
+    if (title && !post) { // Only auto-slug for new posts
         const slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
         form.setValue("slug", slug, { shouldValidate: true });
     }
-  }, [title, form]);
+  }, [title, form, post]);
 
+  const handleAutofill = async () => {
+    const titleValue = form.getValues("title");
+    if (!titleValue) {
+        toast({
+            title: "Title is missing",
+            description: "Please enter a blog post title before using AI Autofill.",
+            variant: "destructive"
+        });
+        return;
+    }
+    setIsAutofilling(true);
+    try {
+        const result = await suggestBlogDetails({ title: titleValue });
+        form.setValue("excerpt", result.excerpt, { shouldValidate: true });
+        form.setValue("content", result.content, { shouldValidate: true });
+        toast({ title: "Success!", description: "AI has filled in the blog details." });
+    } catch (error) {
+         toast({
+            title: "Error",
+            description: "Failed to generate AI details.",
+            variant: "destructive"
+        });
+        console.error("Autofill failed:", error);
+    } finally {
+        setIsAutofilling(false);
+    }
+  }
 
   const handleGenerateImage = async () => {
     const promptValue = form.getValues("title");
@@ -130,7 +159,7 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
     }
   }
   
-  const isGenerating = isGeneratingImage;
+  const isGenerating = isGeneratingImage || isAutofilling;
 
   return (
     <Card>
@@ -143,9 +172,15 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Title</FormLabel>
+                   <div className="flex items-center gap-2">
                     <FormControl>
                       <Input placeholder="How to Ace Your Technical Interview" {...field} disabled={isGenerating}/>
                     </FormControl>
+                     <Button type="button" variant="outline" onClick={handleAutofill} disabled={isGenerating}>
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        {isAutofilling ? 'Thinking...' : 'AI Autofill'}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
