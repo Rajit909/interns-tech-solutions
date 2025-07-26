@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import type { IBlog } from "@/models/Blog"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Wand2 } from "lucide-react"
 import { generateImage } from "@/ai/flows/generate-image-flow"
@@ -61,7 +61,7 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
 
   // Auto-generate slug from title
   const title = form.watch("title");
-  React.useEffect(() => {
+  useEffect(() => {
     if (title) {
         const slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
         form.setValue("slug", slug, { shouldValidate: true });
