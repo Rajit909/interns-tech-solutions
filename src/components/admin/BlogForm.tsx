@@ -268,9 +268,10 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
                 <FormItem>
                   <FormLabel>Content</FormLabel>
                   <FormControl>
-                    <RichTextEditor
+                     <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
                       readOnly={isGenerating}
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
