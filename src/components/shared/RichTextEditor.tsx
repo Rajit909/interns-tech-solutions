@@ -6,7 +6,7 @@ import 'react-quill/dist/quill.snow.css';
 import { forwardRef } from 'react';
 
 interface RichTextEditorProps extends ReactQuillProps {
-  // We can add any custom props here if needed
+  readOnly?: boolean;
 }
 
 const modules = {
