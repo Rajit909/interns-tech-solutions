@@ -14,7 +14,7 @@ import type { IBlog } from '@/models/Blog';
 export default function BlogPostPage() {
   const params = useParams();
   const slug = params.slug;
-  const { data, error, isLoading } = useSWR(`/api/blogs/slug/${slug}`, fetcher);
+  const { data, error, isLoading } = useSWR(slug ? `/api/blogs/slug/${slug}`: null, fetcher);
 
   if (isLoading) {
     return (
@@ -36,6 +36,11 @@ export default function BlogPostPage() {
   }
   
   const post: IBlog = data.post;
+
+  // This can happen if the slug is not available yet during pre-rendering
+  if (!post) {
+    return null;
+  }
 
   return (
     <article className="container mx-auto max-w-4xl py-12 px-4">
