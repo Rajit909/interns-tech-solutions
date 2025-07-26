@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Briefcase, Filter, Search } from 'lucide-react';
+import { ArrowRight, BookOpen, Briefcase, Filter, Search, Building2, Rss } from 'lucide-react';
 import useSWR from 'swr';
 
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ import { fetcher } from '@/lib/utils';
 import type { ICourse } from '@/models/Course';
 import type { IInternship } from '@/models/Internship';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 function FeaturedListings({ listings, isLoading, type }: { listings: (ICourse[] | IInternship[] | undefined), isLoading: boolean, type: 'Course' | 'Internship' }) {
     if (isLoading) {
@@ -58,6 +59,39 @@ export default function Home() {
   
   const courses = coursesData?.courses;
   const internships = internshipsData?.internships;
+  
+  const partners = [
+    { name: 'Innovate Inc.', logo: 'https://placehold.co/150x60.png' },
+    { name: 'Data Insights Co.', logo: 'https://placehold.co/150x60.png' },
+    { name: 'Creative Solutions', logo: 'https://placehold.co/150x60.png' },
+    { name: 'Growth Gurus', logo: 'https://placehold.co/150x60.png' },
+    { name: 'TechForward', logo: 'https://placehold.co/150x60.png' },
+    { name: 'QuantumLeap', logo: 'https://placehold.co/150x60.png' },
+  ];
+  
+   const blogPosts = [
+    {
+      id: 'b1',
+      title: 'How to Ace Your Technical Interview',
+      excerpt: 'Discover key strategies and tips to impress in your next technical interview, from preparation to follow-up.',
+      imageUrl: 'https://placehold.co/600x400.png',
+      dataAiHint: 'interview preparation'
+    },
+    {
+      id: 'b2',
+      title: 'The Future of Remote Work for Interns',
+      excerpt: 'Explore the evolving landscape of remote internships and how you can make the most of the opportunity.',
+      imageUrl: 'https://placehold.co/600x400.png',
+      dataAiHint: 'remote work'
+    },
+    {
+      id: 'b3',
+      title: 'Building a Portfolio That Gets Noticed',
+      excerpt: 'A step-by-step guide to creating a standout portfolio that showcases your skills and lands you your dream job.',
+      imageUrl: 'https://placehold.co/600x400.png',
+      dataAiHint: 'design portfolio'
+    },
+  ];
 
 
   return (
@@ -203,6 +237,82 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <section id="partners" className="bg-secondary/30 py-16 md:py-24">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="mb-12 text-center">
+                <div className="mb-4 inline-flex items-center gap-3">
+                    <Building2 className="h-8 w-8 text-primary" />
+                    <h2 className="font-headline text-3xl font-bold tracking-tight">
+                        Our Hiring Partners
+                    </h2>
+                </div>
+                <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                    We partner with leading companies to provide exclusive opportunities for our students.
+                </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+              {partners.map((partner) => (
+                <div key={partner.name} className="grayscale transition-all hover:grayscale-0">
+                  <Image
+                    src={partner.logo}
+                    alt={`${partner.name} Logo`}
+                    width={150}
+                    height={60}
+                    className="object-contain"
+                    data-ai-hint="company logo"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="blog" className="py-16 md:py-24">
+            <div className="container mx-auto px-4 md:px-6">
+                 <div className="mb-12 text-center">
+                    <div className="mb-4 inline-flex items-center gap-3">
+                        <Rss className="h-8 w-8 text-primary" />
+                        <h2 className="font-headline text-3xl font-bold tracking-tight">
+                            From Our Blog
+                        </h2>
+                    </div>
+                    <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                        Stay updated with the latest industry trends, career advice, and platform news.
+                    </p>
+                </div>
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    {blogPosts.map((post) => (
+                        <Card key={post.id} className="overflow-hidden transition-shadow hover:shadow-lg">
+                            <CardHeader className="p-0">
+                                <Link href="#" className="block">
+                                    <Image
+                                        src={post.imageUrl}
+                                        alt={post.title}
+                                        width={600}
+                                        height={400}
+                                        className="w-full object-cover"
+                                        data-ai-hint={post.dataAiHint}
+                                    />
+                                </Link>
+                            </CardHeader>
+                            <CardContent className="p-6">
+                                <CardTitle className="mb-2 text-xl font-bold leading-tight">
+                                    <Link href="#" className="hover:text-primary">{post.title}</Link>
+                                </CardTitle>
+                                <p className="text-muted-foreground">{post.excerpt}</p>
+                            </CardContent>
+                            <div className="p-6 pt-0">
+                                <Button asChild variant="link" className="p-0">
+                                    <Link href="#">Read More <ArrowRight className="ml-1 h-4 w-4"/></Link>
+                                </Button>
+                            </div>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+        </section>
+
       </main>
       <Footer />
     </div>
