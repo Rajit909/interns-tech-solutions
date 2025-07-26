@@ -121,7 +121,7 @@ export function BlogTable({ posts, onEdit, onDelete }: BlogTableProps) {
                             {dbPost.status}
                         </Badge>
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">{format(new Date(dbPost.publishDate), 'PP')}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{dbPost.publishDate ? format(new Date(dbPost.publishDate), 'PP') : 'N/A'}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
