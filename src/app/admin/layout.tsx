@@ -31,6 +31,7 @@ import {
   LogOut,
   Settings,
   User,
+  Rss,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from 'next/navigation'
@@ -47,6 +48,7 @@ const navItems = [
     { href: "/admin/courses", icon: BookMarked, label: "Courses" },
     { href: "/admin/internships", icon: Briefcase, label: "Internships" },
     { href: "/admin/users", icon: Users, label: "Users" },
+    { href: "/admin/blogs", icon: Rss, label: "Blog" },
     { href: "/admin/subscriptions", icon: BadgeDollarSign, label: "Subscriptions" },
 ];
 
@@ -86,7 +88,7 @@ export default function AdminLayout({
             <SidebarMenu>
                 {navItems.map((item) => (
                     <SidebarMenuItem key={item.label}>
-                        <SidebarMenuButton asChild tooltip={item.label} isActive={pathname === item.href}>
+                        <SidebarMenuButton asChild tooltip={item.label} isActive={pathname.startsWith(item.href)}>
                         <Link href={item.href}>
                             <item.icon />
                             <span>{item.label}</span>

@@ -21,6 +21,7 @@ import { CourseCard } from '@/components/shared/CourseCard';
 import { fetcher } from '@/lib/utils';
 import type { ICourse } from '@/models/Course';
 import type { IInternship } from '@/models/Internship';
+import type { IBlog } from '@/models/Blog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 
@@ -52,6 +53,73 @@ function FeaturedListings({ listings, isLoading, type }: { listings: (ICourse[] 
     )
 }
 
+function FeaturedBlogPosts() {
+    const { data, error, isLoading } = useSWR('/api/blogs', fetcher);
+    const posts: IBlog[] = data?.posts || [];
+
+    if (isLoading) {
+        return (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {[...Array(3)].map((_, i) => (
+                     <Card key={i} className="flex flex-col">
+                        <CardHeader className="p-0">
+                           <Skeleton className="w-full aspect-[3/2]" />
+                        </CardHeader>
+                        <CardContent className="flex-grow p-6 space-y-4">
+                            <Skeleton className="h-6 w-full" />
+                             <Skeleton className="h-4 w-3/4" />
+                        </CardContent>
+                         <CardFooter className="p-6 pt-0">
+                            <Skeleton className="h-8 w-24" />
+                         </CardFooter>
+                    </Card>
+                ))}
+            </div>
+        )
+    }
+    
+    if (error || !posts) {
+        return <p>Could not load blog posts.</p>
+    }
+
+    return (
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {posts.slice(0, 3).map((post) => (
+                <Card key={(post as any)._id} className="flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
+                    <CardHeader className="p-0">
+                        <Link href={`/blog/${post.slug}`} className="block">
+                            <Image
+                                src={post.imageUrl}
+                                alt={post.title}
+                                width={600}
+                                height={400}
+                                className="w-full object-cover aspect-[3/2]"
+                                data-ai-hint={post.dataAiHint || 'blog post'}
+                            />
+                        </Link>
+                    </CardHeader>
+                    <CardContent className="flex-grow p-6">
+                        <CardTitle className="mb-2 text-xl font-bold leading-tight">
+                            <Link href={`/blog/${post.slug}`} className="hover:text-primary">{post.title}</Link>
+
+                        </CardTitle>
+                        <p className="text-muted-foreground line-clamp-3">{post.excerpt}</p>
+                    </CardContent>
+                    <CardFooter className="flex justify-between items-center p-6 pt-0 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          <span>{post.readTime}</span>
+                        </div>
+                        <Button asChild variant="link" className="p-0">
+                            <Link href={`/blog/${post.slug}`}>Read More <ArrowRight className="ml-1 h-4 w-4"/></Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            ))}
+        </div>
+    )
+}
+
 
 export default function Home() {
   const { data: coursesData, isLoading: coursesLoading } = useSWR('/api/courses', fetcher);
@@ -69,64 +137,6 @@ export default function Home() {
     { name: 'QuantumLeap', logo: 'https://placehold.co/150x60.png' },
   ];
   
-   const blogPosts = [
-    {
-      id: 'b1',
-      slug: 'how-to-ace-your-technical-interview',
-      title: 'How to Ace Your Technical Interview',
-      excerpt: 'Discover key strategies and tips to impress in your next technical interview, from preparation to follow-up.',
-      imageUrl: 'https://placehold.co/600x400.png',
-      dataAiHint: 'interview preparation',
-      readTime: '7 min read',
-      author: 'Jane Doe',
-      date: '2024-07-20',
-      content: `
-        <p>Acing a technical interview requires more than just knowing how to code. It's a test of your problem-solving skills, communication, and ability to think under pressure. In this post, we'll break down the essential steps to help you prepare and shine in your next interview.</p>
-        <h2>Preparation is Key</h2>
-        <p>Start by reviewing the fundamentals of computer science: data structures (arrays, linked lists, trees, graphs, hash tables) and algorithms (sorting, searching, dynamic programming). Platforms like LeetCode and HackerRank are invaluable for practice. Don't just solve problems—understand the "why" behind the optimal solutions.</p>
-        <h2>During the Interview</h2>
-        <p>When presented with a problem, don't rush to code. First, make sure you understand the question completely. Ask clarifying questions. Verbalize your thought process as you work towards a solution. Start with a brute-force approach if needed, and then discuss how you would optimize it. This demonstrates a structured approach to problem-solving.</p>
-        <h2>After the Interview</h2>
-        <p>Always send a thank-you note within 24 hours. It's a small gesture that shows professionalism and your continued interest in the role. Reflect on the questions asked and the areas where you could improve for next time.</p>
-      `
-    },
-    {
-      id: 'b2',
-      slug: 'the-future-of-remote-work-for-interns',
-      title: 'The Future of Remote Work for Interns',
-      excerpt: 'Explore the evolving landscape of remote internships and how you can make the most of the opportunity.',
-      imageUrl: 'https://placehold.co/600x400.png',
-      dataAiHint: 'remote work',
-      readTime: '5 min read',
-      author: 'John Smith',
-      date: '2024-07-18',
-      content: `
-        <p>Remote work is no longer a trend; it's a fundamental shift in how we approach careers. For interns, this opens up a world of opportunities previously limited by geography. However, it also presents unique challenges.</p>
-        <h2>Maximizing the Experience</h2>
-        <p>To succeed in a remote internship, communication is paramount. Be proactive in reaching out to your mentor and teammates. Over-communicate your progress and don't be afraid to ask questions. Schedule virtual coffee chats to build relationships you'd otherwise form in an office.</p>
-        <h2>Staying Engaged</h2>
-        <p>It's easy to feel isolated when working remotely. Actively participate in all team meetings, engage in team communication channels, and take initiative on projects. A successful remote internship can be a powerful launchpad for a flexible and global career.</p>
-      `
-    },
-    {
-      id: 'b3',
-      slug: 'building-a-portfolio-that-gets-noticed',
-      title: 'Building a Portfolio That Gets Noticed',
-      excerpt: 'A step-by-step guide to creating a standout portfolio that showcases your skills and lands you your dream job.',
-      imageUrl: 'https://placehold.co/600x400.png',
-      dataAiHint: 'design portfolio',
-      readTime: '8 min read',
-      author: 'Emily White',
-      date: '2024-07-15',
-      content: `
-        <p>Your portfolio is often the first impression you make on a potential employer. It's a visual resume that needs to be compelling, well-organized, and representative of your best work.</p>
-        <h2>What to Include</h2>
-        <p>Select 3-5 of your strongest projects. For each project, don't just show the final result. Tell a story. Describe the problem, your process, the challenges you faced, and the solution you created. Include wireframes, user flows, and prototypes to showcase your thinking.</p>
-        <h2>Design and Presentation</h2>
-        <p>The design of your portfolio site itself is a project. It should be clean, easy to navigate, and mobile-friendly. Ensure your contact information is easy to find. A personal "About Me" section can also help recruiters get a sense of who you are beyond your work.</p>
-      `
-    },
-  ];
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -315,40 +325,7 @@ export default function Home() {
                         Stay updated with the latest industry trends, career advice, and platform news.
                     </p>
                 </div>
-                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {blogPosts.map((post) => (
-                        <Card key={post.id} className="flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
-                            <CardHeader className="p-0">
-                                <Link href={`/blog/${post.slug}`} className="block">
-                                    <Image
-                                        src={post.imageUrl}
-                                        alt={post.title}
-                                        width={600}
-                                        height={400}
-                                        className="w-full object-cover aspect-[3/2]"
-                                        data-ai-hint={post.dataAiHint}
-                                    />
-                                </Link>
-                            </CardHeader>
-                            <CardContent className="flex-grow p-6">
-                                <CardTitle className="mb-2 text-xl font-bold leading-tight">
-                                    <Link href={`/blog/${post.slug}`} className="hover:text-primary">{post.title}</Link>
-
-                                </CardTitle>
-                                <p className="text-muted-foreground line-clamp-3">{post.excerpt}</p>
-                            </CardContent>
-                            <CardFooter className="flex justify-between items-center p-6 pt-0 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-2">
-                                  <Clock className="h-4 w-4" />
-                                  <span>{post.readTime}</span>
-                                </div>
-                                <Button asChild variant="link" className="p-0">
-                                    <Link href={`/blog/${post.slug}`}>Read More <ArrowRight className="ml-1 h-4 w-4"/></Link>
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
+                <FeaturedBlogPosts />
             </div>
         </section>
 
