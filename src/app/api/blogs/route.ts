@@ -3,10 +3,15 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Blog from '@/models/Blog';
 
-export async function GET() {
+export async function GET(request: Request) {
   await connectDB();
+  
+  const { searchParams } = new URL(request.url);
+  const forAdmin = searchParams.get('admin') === 'true';
+
   try {
-    const posts = await Blog.find({}).sort({ date: -1 });
+    const query = forAdmin ? {} : { status: 'published', publishDate: { $lte: new Date() } };
+    const posts = await Blog.find(query).sort({ publishDate: -1 });
     return NextResponse.json({ posts });
   } catch (error) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

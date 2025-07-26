@@ -17,7 +17,7 @@ export default function AdminBlogsPage() {
   const [view, setView] = useState<'table' | 'form'>('table');
   const { toast } = useToast();
 
-  const { data, error, isLoading } = useSWR('/api/blogs', fetcher);
+  const { data, error, isLoading } = useSWR('/api/blogs?admin=true', fetcher);
   const posts: IBlog[] = data?.posts || [];
 
   const handleAddClick = () => {
@@ -41,7 +41,7 @@ export default function AdminBlogsPage() {
       }
       
       toast({ title: 'Success', description: 'Blog post deleted successfully.' });
-      mutate('/api/blogs'); // Revalidate the list
+      mutate('/api/blogs?admin=true'); // Revalidate the list
     } catch (error) {
        toast({
         title: 'Error',
@@ -54,7 +54,7 @@ export default function AdminBlogsPage() {
 
   const handleSave = async () => {
     setView('table');
-    mutate('/api/blogs'); // Revalidate the list
+    mutate('/api/blogs?admin=true'); // Revalidate the list
   };
 
   const handleCancel = () => {

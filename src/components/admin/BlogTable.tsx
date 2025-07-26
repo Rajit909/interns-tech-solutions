@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import type { IBlog } from '@/models/Blog';
 import { format } from 'date-fns'
+import { Badge } from '@/components/ui/badge'
 
 type BlogTableProps = {
   posts: IBlog[];
@@ -58,6 +59,30 @@ export function BlogTable({ posts, onEdit, onDelete }: BlogTableProps) {
     setSelectedPostId(null);
   };
 
+  const getStatusVariant = (status: IBlog['status']) => {
+    switch (status) {
+      case 'published':
+        return 'default'
+      case 'draft':
+        return 'secondary'
+      case 'scheduled':
+        return 'outline'
+      default:
+        return 'secondary'
+    }
+  }
+
+  const getStatusClass = (status: IBlog['status']) => {
+    switch (status) {
+        case 'published':
+            return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+        case 'scheduled':
+            return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+        default:
+            return ''
+    }
+  }
+
 
   return (
     <>
@@ -69,7 +94,8 @@ export function BlogTable({ posts, onEdit, onDelete }: BlogTableProps) {
               <TableRow>
                 <TableHead>Post</TableHead>
                 <TableHead className="hidden sm:table-cell">Author</TableHead>
-                <TableHead className="hidden lg:table-cell">Date</TableHead>
+                <TableHead className="hidden lg:table-cell">Status</TableHead>
+                <TableHead className="hidden lg:table-cell">Publish Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -90,7 +116,12 @@ export function BlogTable({ posts, onEdit, onDelete }: BlogTableProps) {
                     <TableCell className="hidden sm:table-cell">
                       {dbPost.author}
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">{format(new Date(dbPost.date), 'MMMM d, yyyy')}</TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                        <Badge variant={getStatusVariant(dbPost.status)} className={getStatusClass(dbPost.status)}>
+                            {dbPost.status}
+                        </Badge>
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">{format(new Date(dbPost.publishDate), 'PP')}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

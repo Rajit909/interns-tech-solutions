@@ -4,25 +4,35 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useState, useEffect } from "react"
+import { format } from "date-fns"
+import { Calendar as CalendarIcon, Wand2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import type { IBlog } from "@/models/Blog"
-import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Wand2 } from "lucide-react"
 import { generateImage } from "@/ai/flows/generate-image-flow"
 import { Textarea } from "@/components/ui/textarea"
 import { suggestBlogDetails } from "@/ai/flows/suggest-blog-details-flow"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -33,6 +43,12 @@ const formSchema = z.object({
   imageUrl: z.string().url("Please enter a valid URL or generate one."),
   readTime: z.string().min(1, "Read time is required."),
   dataAiHint: z.string().optional(),
+  status: z.enum(["draft", "published", "scheduled"], {
+    required_error: "You need to select a status.",
+  }),
+  publishDate: z.date({
+    required_error: "A publication date is required.",
+  }),
 });
 
 type BlogFormProps = {
@@ -58,6 +74,8 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
       imageUrl: post?.imageUrl || "",
       readTime: post?.readTime || "5 min read",
       dataAiHint: post?.dataAiHint || "",
+      status: post?.status || "draft",
+      publishDate: post?.publishDate ? new Date(post.publishDate) : new Date(),
     },
   })
 
@@ -69,6 +87,13 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
         form.setValue("slug", slug, { shouldValidate: true });
     }
   }, [title, form, post]);
+
+  const status = form.watch("status");
+  useEffect(() => {
+    if (status === 'published' || status === 'draft') {
+        form.setValue("publishDate", new Date());
+    }
+  }, [status, form]);
 
   const handleAutofill = async () => {
     const titleValue = form.getValues("title");
@@ -131,7 +156,10 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
       const url = post ? `/api/blogs/${(post as any)._id}` : '/api/blogs';
       const method = post ? 'PUT' : 'POST';
 
-      const finalValues = { ...values, date: new Date().toISOString() };
+      const finalValues = { ...values };
+      if (finalValues.status === 'published') {
+        finalValues.publishDate = new Date();
+      }
 
       const res = await fetch(url, {
         method,
@@ -165,7 +193,7 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
     <Card>
       <CardContent className="p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="title"
@@ -295,7 +323,97 @@ export function BlogForm({ post, onSave, onCancel }: BlogFormProps) {
                 </FormItem>
               )}
             />
-            <div className="flex justify-end gap-2">
+             <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                        disabled={isGenerating}
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="draft" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Draft
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="published" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Published
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="scheduled" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Scheduled
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               {status === 'scheduled' && (
+                  <FormField
+                    control={form.control}
+                    name="publishDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Publication Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                                disabled={isGenerating}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date < new Date(new Date().setHours(0,0,0,0)) || isGenerating
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormDescription>
+                          The post will be published on this date.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+            <div className="flex justify-end gap-2 pt-4">
                 <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving || isGenerating}>
                     Cancel
                 </Button>

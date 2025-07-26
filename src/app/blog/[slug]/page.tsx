@@ -50,8 +50,8 @@ export default function BlogPostPage() {
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            <time dateTime={post.date}>
-              {format(new Date(post.date), 'MMMM d, yyyy')}
+            <time dateTime={new Date(post.publishDate).toISOString()}>
+              {format(new Date(post.publishDate), 'MMMM d, yyyy')}
             </time>
           </div>
           <div className="flex items-center gap-2">
