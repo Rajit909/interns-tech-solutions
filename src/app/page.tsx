@@ -17,13 +17,14 @@ import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { CourseCard } from '@/components/shared/CourseCard';
 import type { ICourse } from '@/models/Course';
-import Course from '@/models/Course';
 import type { IInternship } from '@/models/Internship';
-import Internship from '@/models/Internship';
 import type { IBlog } from '@/models/Blog';
-import Blog from '@/models/Blog';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import connectDB from '@/lib/db';
+import Course from '@/models/Course';
+import Internship from '@/models/Internship';
+import Blog from '@/models/Blog';
+
 
 async function getCourses() {
     noStore();
