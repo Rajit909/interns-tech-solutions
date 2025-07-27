@@ -1,10 +1,8 @@
 
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Briefcase, Filter, Search, Building2, Rss, Clock } from 'lucide-react';
-import useSWR from 'swr';
+import { unstable_noStore as noStore } from 'next/cache';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,73 +16,60 @@ import {
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { CourseCard } from '@/components/shared/CourseCard';
-import { fetcher } from '@/lib/utils';
 import type { ICourse } from '@/models/Course';
+import Course from '@/models/Course';
 import type { IInternship } from '@/models/Internship';
+import Internship from '@/models/Internship';
 import type { IBlog } from '@/models/Blog';
-import { Skeleton } from '@/components/ui/skeleton';
+import Blog from '@/models/Blog';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import connectDB from '@/lib/db';
 
-function FeaturedListings({ listings, isLoading, type }: { listings: (ICourse[] | IInternship[] | undefined), isLoading: boolean, type: 'Course' | 'Internship' }) {
-    if (isLoading) {
-        return (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {[...Array(4)].map((_, i) => (
-                    <div key={i} className="space-y-2">
-                        <Skeleton className="h-48 w-full" />
-                        <Skeleton className="h-6 w-3/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                    </div>
-                ))}
-            </div>
-        )
-    }
+async function getCourses() {
+    noStore();
+    await connectDB();
+    const courses = await Course.find({}).sort({ studentsEnrolled: -1 }).limit(4).lean();
+    return JSON.parse(JSON.stringify(courses)) as ICourse[];
+}
 
-    if (!listings) {
+async function getInternships() {
+    noStore();
+    await connectDB();
+    const internships = await Internship.find({}).sort({ applicants: -1 }).limit(4).lean();
+    return JSON.parse(JSON.stringify(internships)) as IInternship[];
+}
+
+async function getBlogPosts() {
+    noStore();
+    await connectDB();
+    const posts = await Blog.find({ status: 'published', publishDate: { $lte: new Date() } }).sort({ publishDate: -1 }).limit(3).lean();
+    return JSON.parse(JSON.stringify(posts)) as IBlog[];
+}
+
+
+function FeaturedListings({ listings, type }: { listings: (ICourse[] | IInternship[]), type: 'Course' | 'Internship' }) {
+
+    if (!listings || listings.length === 0) {
         return <p>No {type.toLowerCase()}s found.</p>
     }
 
     return (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {listings.slice(0, 4).map((listing) => (
+            {listings.map((listing) => (
                 <CourseCard key={(listing as any)._id} listing={listing} />
             ))}
         </div>
     )
 }
 
-function FeaturedBlogPosts() {
-    const { data, error, isLoading } = useSWR('/api/blogs', fetcher);
-    const posts: IBlog[] = data?.posts || [];
-
-    if (isLoading) {
-        return (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {[...Array(3)].map((_, i) => (
-                     <Card key={i} className="flex flex-col">
-                        <CardHeader className="p-0">
-                           <Skeleton className="w-full aspect-[3/2]" />
-                        </CardHeader>
-                        <CardContent className="flex-grow p-6 space-y-4">
-                            <Skeleton className="h-6 w-full" />
-                             <Skeleton className="h-4 w-3/4" />
-                        </CardContent>
-                         <CardFooter className="p-6 pt-0">
-                            <Skeleton className="h-8 w-24" />
-                         </CardFooter>
-                    </Card>
-                ))}
-            </div>
-        )
-    }
-    
-    if (error || !posts) {
+function FeaturedBlogPosts({ posts }: { posts: IBlog[] }) {
+    if (!posts || posts.length === 0) {
         return <p>Could not load blog posts.</p>
     }
 
     return (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {posts.slice(0, 3).map((post) => (
+            {posts.map((post) => (
                 <Card key={(post as any)._id} className="flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
                     <CardHeader className="p-0">
                         <Link href={`/blog/${post.slug}`} className="block">
@@ -103,7 +88,7 @@ function FeaturedBlogPosts() {
                             <Link href={`/blog/${post.slug}`} className="hover:text-primary">{post.title}</Link>
 
                         </CardTitle>
-                        <p className="text-muted-foreground line-clamp-3">{post.excerpt}</p>
+                        <p className="text-muted-foreground line-clamp-3">{post.excerpt || ''}</p>
                     </CardContent>
                     <CardFooter className="flex justify-between items-center p-6 pt-0 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
@@ -121,12 +106,10 @@ function FeaturedBlogPosts() {
 }
 
 
-export default function Home() {
-  const { data: coursesData, isLoading: coursesLoading } = useSWR('/api/courses', fetcher);
-  const { data: internshipsData, isLoading: internshipsLoading } = useSWR('/api/internships', fetcher);
-  
-  const courses = coursesData?.courses;
-  const internships = internshipsData?.internships;
+export default async function Home() {
+  const courses = await getCourses();
+  const internships = await getInternships();
+  const posts = await getBlogPosts();
   
   const partners = [
     { name: 'Innovate Inc.', logo: 'https://placehold.co/150x60.png' },
@@ -204,7 +187,7 @@ export default function Home() {
                 Featured Courses
               </h2>
             </div>
-            <FeaturedListings listings={courses} isLoading={coursesLoading} type="Course" />
+            <FeaturedListings listings={courses} type="Course" />
             <div className="mt-12 text-center">
               <Button variant="outline" size="lg" asChild>
                 <Link href="/dashboard/courses">View All Courses <ArrowRight className="ml-2" /></Link>
@@ -221,7 +204,7 @@ export default function Home() {
                 Latest Internships
               </h2>
             </div>
-            <FeaturedListings listings={internships} isLoading={internshipsLoading} type="Internship" />
+            <FeaturedListings listings={internships} type="Internship" />
             <div className="mt-12 text-center">
               <Button variant="outline" size="lg" asChild>
                 <Link href="/dashboard/internships">View All Internships <ArrowRight className="ml-2" /></Link>
@@ -325,7 +308,7 @@ export default function Home() {
                         Stay updated with the latest industry trends, career advice, and platform news.
                     </p>
                 </div>
-                <FeaturedBlogPosts />
+                <FeaturedBlogPosts posts={posts} />
             </div>
         </section>
 
