@@ -21,14 +21,12 @@ import type { IInternship } from '@/models/Internship';
 import type { IBlog } from '@/models/Blog';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import connectDB from '@/lib/db';
-import Course from '@/models/Course';
-import Internship from '@/models/Internship';
-import Blog from '@/models/Blog';
 
 
 async function getCourses() {
     noStore();
     await connectDB();
+    const Course = require('@/models/Course').default;
     const courses = await Course.find({}).sort({ studentsEnrolled: -1 }).limit(4).lean();
     return JSON.parse(JSON.stringify(courses)) as ICourse[];
 }
@@ -36,6 +34,7 @@ async function getCourses() {
 async function getInternships() {
     noStore();
     await connectDB();
+    const Internship = require('@/models/Internship').default;
     const internships = await Internship.find({}).sort({ applicants: -1 }).limit(4).lean();
     return JSON.parse(JSON.stringify(internships)) as IInternship[];
 }
@@ -43,6 +42,7 @@ async function getInternships() {
 async function getBlogPosts() {
     noStore();
     await connectDB();
+    const Blog = require('@/models/Blog').default;
     const posts = await Blog.find({ status: 'published', publishDate: { $lte: new Date() } }).sort({ publishDate: -1 }).limit(3).lean();
     return JSON.parse(JSON.stringify(posts)) as IBlog[];
 }
