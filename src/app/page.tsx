@@ -23,7 +23,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import connectDB from '@/lib/db';
 import { HeroCarousel } from '@/components/home/HeroCarousel';
 
-
 async function getCourses() {
     noStore();
     await connectDB();

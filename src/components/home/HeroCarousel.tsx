@@ -5,7 +5,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Autoplay from 'embla-carousel-autoplay';
-
+import useSWR from 'swr';
 import {
   Carousel,
   CarouselContent,
@@ -15,38 +15,52 @@ import {
 } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { fetcher } from '@/lib/utils';
+import type { IHeroSlide } from '@/models/HeroSlide';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const slides = [
-  {
-    title: 'Find Your Future. Today.',
-    description: 'Our platform is your gateway to top-tier online courses and exclusive internships. Start your journey with us and unlock your full potential.',
-    buttonText: 'Explore Courses',
-    buttonLink: '#courses',
-    imageUrl: 'https://placehold.co/1920x800.png',
-    dataAiHint: 'students learning'
-  },
-  {
-    title: 'Land Your Dream Internship.',
-    description: 'Gain real-world experience with internships at leading tech companies and innovative startups. Your career starts here.',
-    buttonText: 'Find Internships',
-    buttonLink: '#internships',
-    imageUrl: 'https://placehold.co/1920x800.png',
-    dataAiHint: 'modern office'
-  },
-  {
-    title: 'Master In-Demand Skills.',
-    description: 'From web development to data science, our expert-led courses are designed to give you the competitive edge in today\'s job market.',
-    buttonText: 'Browse Catalog',
-    buttonLink: '/dashboard/courses',
-    imageUrl: 'https://placehold.co/1920x800.png',
-    dataAiHint: 'woman coding'
-  },
-];
 
 export function HeroCarousel() {
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
+  
+  const { data, error, isLoading } = useSWR('/api/heroslides', fetcher);
+  const slides: IHeroSlide[] = data?.slides || [];
+
+  if (isLoading) {
+    return (
+        <section>
+            <div className="relative h-[500px] w-full md:h-[600px] lg:h-[700px]">
+                <Skeleton className="h-full w-full" />
+                 <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="container mx-auto px-4 text-center text-white md:px-6">
+                    <div className="max-w-4xl mx-auto space-y-6">
+                        <Skeleton className="h-16 w-3/4 mx-auto" />
+                        <Skeleton className="h-6 w-full max-w-lg mx-auto" />
+                         <Skeleton className="h-12 w-48 mx-auto" />
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </section>
+    )
+  }
+  
+  if (error || !slides.length) {
+    return (
+        <section>
+             <div className="relative h-[500px] w-full md:h-[600px] lg:h-[700px] bg-secondary">
+                 <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="container mx-auto px-4 text-center md:px-6">
+                     <p>Could not load slides.</p>
+                  </div>
+                </div>
+            </div>
+        </section>
+    )
+  }
+
 
   return (
     <section>
@@ -61,14 +75,14 @@ export function HeroCarousel() {
       >
         <CarouselContent>
           {slides.map((slide, index) => (
-            <CarouselItem key={index}>
+            <CarouselItem key={(slide as any)._id}>
               <div className="relative h-[500px] w-full md:h-[600px] lg:h-[700px]">
                 <Image
                   src={slide.imageUrl}
                   alt={slide.title}
                   fill
                   className="object-cover"
-                  data-ai-hint={slide.dataAiHint}
+                  data-ai-hint={slide.dataAiHint || 'website hero'}
                   priority={index === 0}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
