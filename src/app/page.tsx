@@ -21,6 +21,7 @@ import type { IInternship } from '@/models/Internship';
 import type { IBlog } from '@/models/Blog';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import connectDB from '@/lib/db';
+import { HeroCarousel } from '@/components/home/HeroCarousel';
 
 
 async function getCourses() {
@@ -126,32 +127,9 @@ export default async function Home() {
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
       <main className="flex-1">
-        <section className="relative w-full bg-secondary/30 py-20 md:py-32 lg:py-40">
-          <div className="container mx-auto px-4 text-center md:px-6">
-            <div className="space-y-6">
-              <h1 className="font-headline text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-                Find Your Future. <span className="text-primary">Today.</span>
-              </h1>
-              <p className="mx-auto max-w-3xl text-lg text-muted-foreground md:text-xl">
-                Intern Tech Solutions is your gateway to top-tier online courses and
-                exclusive internships. Start your journey with us and unlock
-                your potential.
-              </p>
-              <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Button size="lg" asChild>
-                  <a href="#courses">
-                    Explore Courses <ArrowRight className="ml-2" />
-                  </a>
-                </Button>
-                <Button size="lg" variant="secondary" asChild>
-                  <a href="#internships">Find Internships</a>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="-mt-12">
+        <HeroCarousel />
+        
+        <section className="-mt-12 z-10 relative">
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center gap-4 rounded-lg border bg-card p-4 shadow-lg md:flex-row">
               <div className="relative w-full flex-grow">
