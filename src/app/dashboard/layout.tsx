@@ -32,6 +32,7 @@ import {
   User,
   LogOut,
   Settings,
+  HelpCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button";
 
@@ -39,6 +40,7 @@ const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/dashboard/courses", icon: BookMarked, label: "Courses" },
     { href: "/dashboard/internships", icon: Briefcase, label: "Internships" },
+    { href: "/dashboard/quizzes", icon: HelpCircle, label: "Quizzes" },
     { href: "/dashboard/saved", icon: Bookmark, label: "Saved Items" },
 ];
 
@@ -60,7 +62,7 @@ export default function DashboardLayout({
             <SidebarMenu>
                 {navItems.map((item) => (
                     <SidebarMenuItem key={item.label}>
-                        <SidebarMenuButton asChild tooltip={item.label} isActive={pathname === item.href}>
+                        <SidebarMenuButton asChild tooltip={item.label} isActive={pathname.startsWith(item.href)}>
                         <Link href={item.href}>
                             <item.icon />
                             <span>{item.label}</span>

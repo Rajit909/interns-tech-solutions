@@ -33,6 +33,7 @@ import {
   User,
   Rss,
   Presentation,
+  HelpCircle,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from 'next/navigation'
@@ -48,6 +49,7 @@ const navItems = [
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
     { href: "/admin/courses", icon: BookMarked, label: "Courses" },
     { href: "/admin/internships", icon: Briefcase, label: "Internships" },
+    { href: "/admin/quizzes", icon: HelpCircle, label: "Quizzes" },
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/blogs", icon: Rss, label: "Blog" },
     { href: "/admin/hero", icon: Presentation, label: "Hero" },
