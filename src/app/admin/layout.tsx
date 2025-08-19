@@ -45,7 +45,7 @@ import { Button } from "@/components/ui/button";
 
 
 const navItems = [
-    { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
     { href: "/admin/courses", icon: BookMarked, label: "Courses" },
     { href: "/admin/internships", icon: Briefcase, label: "Internships" },
     { href: "/admin/users", icon: Users, label: "Users" },
@@ -88,16 +88,21 @@ export default function AdminLayout({
           </SidebarHeader>
           <SidebarContent className="p-2">
             <SidebarMenu>
-                {navItems.map((item) => (
-                    <SidebarMenuItem key={item.label}>
-                        <SidebarMenuButton asChild tooltip={item.label} isActive={pathname.startsWith(item.href)}>
-                        <Link href={item.href}>
-                            <item.icon />
-                            <span>{item.label}</span>
-                        </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ))}
+                {navItems.map((item) => {
+                    const isActive = item.exact 
+                        ? pathname === item.href 
+                        : pathname.startsWith(item.href);
+                    return (
+                        <SidebarMenuItem key={item.label}>
+                            <SidebarMenuButton asChild tooltip={item.label} isActive={isActive}>
+                            <Link href={item.href}>
+                                <item.icon />
+                                <span>{item.label}</span>
+                            </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    )
+                })}
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter className="p-2">
