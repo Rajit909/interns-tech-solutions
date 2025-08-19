@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { generateQuizQuestions } from "@/ai/flows/generate-quiz-questions-flow"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
+import { Label } from "@/components/ui/label"
 
 const QuestionSchema = z.object({
   text: z.string().min(1, "Question text cannot be empty."),
