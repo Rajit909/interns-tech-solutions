@@ -1,7 +1,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Briefcase, Filter, Search, Building2, Rss, Clock } from 'lucide-react';
+import { ArrowRight, BookOpen, Briefcase, Filter, Search, Building2, Rss, Clock, HelpCircle } from 'lucide-react';
 import { unstable_noStore as noStore } from 'next/cache';
 
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,9 @@ import type { IBlog } from '@/models/Blog';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import connectDB from '@/lib/db';
 import { HeroCarousel } from '@/components/home/HeroCarousel';
+import type { IQuiz } from '@/models/Quiz';
+import { RecentQuiz } from '@/components/home/RecentQuiz';
+
 
 async function getCourses() {
     noStore();
@@ -45,6 +48,14 @@ async function getBlogPosts() {
     const Blog = require('@/models/Blog').default;
     const posts = await Blog.find({ status: 'published', publishDate: { $lte: new Date() } }).sort({ publishDate: -1 }).limit(3).lean();
     return JSON.parse(JSON.stringify(posts)) as IBlog[];
+}
+
+async function getRecentQuiz() {
+    noStore();
+    await connectDB();
+    const { Quiz } = require('@/models/Quiz');
+    const quiz = await Quiz.findOne({}).sort({ createdAt: -1 }).populate('questions').lean();
+    return JSON.parse(JSON.stringify(quiz)) as IQuiz;
 }
 
 
@@ -111,6 +122,7 @@ export default async function Home() {
   const courses = await getCourses();
   const internships = await getInternships();
   const posts = await getBlogPosts();
+  const recentQuiz = await getRecentQuiz();
   
   const partners = [
     { name: 'Innovate Inc.', logo: 'https://placehold.co/150x60.png' },
@@ -190,8 +202,27 @@ export default async function Home() {
             </div>
           </div>
         </section>
+        
+        {recentQuiz && (
+            <section id="quiz" className="py-16 md:py-24">
+                 <div className="container mx-auto px-4 md:px-6">
+                     <div className="mb-12 text-center">
+                        <div className="mb-4 inline-flex items-center gap-3">
+                            <HelpCircle className="h-8 w-8 text-primary" />
+                            <h2 className="font-headline text-3xl font-bold tracking-tight">
+                                Test Your Knowledge
+                            </h2>
+                        </div>
+                        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                            Take our latest quiz to challenge yourself and reinforce your learning.
+                        </p>
+                    </div>
+                    <RecentQuiz quiz={recentQuiz} />
+                </div>
+            </section>
+        )}
 
-        <section id="about" className="py-16 md:py-24">
+        <section id="about" className="bg-secondary/30 py-16 md:py-24">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid items-center gap-12 md:grid-cols-2">
               <div>
@@ -243,7 +274,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="partners" className="bg-secondary/30 py-16 md:py-24">
+        <section id="partners" className="py-16 md:py-24">
           <div className="container mx-auto px-4 md:px-6">
             <div className="mb-12 text-center">
                 <div className="mb-4 inline-flex items-center gap-3">
@@ -273,7 +304,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="blog" className="py-16 md:py-24">
+        <section id="blog" className="bg-secondary/30 py-16 md:py-24">
             <div className="container mx-auto px-4 md:px-6">
                  <div className="mb-12 text-center">
                     <div className="mb-4 inline-flex items-center gap-3">

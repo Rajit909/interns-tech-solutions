@@ -14,10 +14,13 @@ const QuestionSchema: Schema = new Schema({
 });
 
 export interface IQuiz extends Document {
+  _id: string;
   title: string;
   description: string;
   course: Schema.Types.ObjectId;
   questions: IQuestion[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const QuizSchema: Schema = new Schema({
@@ -29,3 +32,5 @@ const QuizSchema: Schema = new Schema({
 
 export const Quiz: Model<IQuiz> = models.Quiz || mongoose.model<IQuiz>('Quiz', QuizSchema);
 export const Question: Model<IQuestion> = models.Question || mongoose.model<IQuestion>('Question', QuestionSchema);
+
+    
