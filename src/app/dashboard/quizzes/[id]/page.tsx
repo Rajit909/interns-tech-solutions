@@ -172,8 +172,8 @@ function QuizResults({ quiz, score, selectedAnswers, onFinish }: { quiz: IQuiz, 
              <CardFooter className="justify-center pt-6">
                 <Button onClick={onFinish}>Finish Review</Button>
             </CardFooter>
-        </div>
-    )
+        </Card>
+    );
 }
 
 function QuizSkeleton() {
