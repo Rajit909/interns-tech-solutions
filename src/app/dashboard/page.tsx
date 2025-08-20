@@ -8,15 +8,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { fetcher } from '@/lib/utils';
 import type { ICourse } from '@/models/Course';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { IUser } from '@/models/User';
 
 export default function StudentDashboardPage() {
-    const { data, error, isLoading } = useSWR('/api/courses', fetcher);
-    const enrolledCourses: ICourse[] = data?.courses || [];
+    const { data: coursesData, error: coursesError, isLoading: coursesLoading } = useSWR('/api/courses', fetcher);
+    const { data: userData, isLoading: userLoading } = useSWR('/api/me', fetcher);
+    
+    const enrolledCourses: ICourse[] = coursesData?.courses || [];
+    const user: IUser | null = userData?.user;
+
+    const welcomeMessage = userLoading ? <Skeleton className="h-9 w-1/2" /> : <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.name || 'Student'}!</h1>;
 
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight">Welcome back, Student!</h1>
+                {welcomeMessage}
                 <p className="text-muted-foreground">Here's what's happening today.</p>
             </div>
 
@@ -24,7 +30,7 @@ export default function StudentDashboardPage() {
             
             <section>
                 <h2 className="text-2xl font-semibold tracking-tight mb-4">My Courses</h2>
-                {isLoading && (
+                {coursesLoading && (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                          {[...Array(2)].map((_, i) => (
                             <div key={i} className="space-y-2">
@@ -35,8 +41,8 @@ export default function StudentDashboardPage() {
                         ))}
                     </div>
                 )}
-                {error && <p className="text-destructive">Failed to load courses.</p>}
-                {!isLoading && !error && (
+                {coursesError && <p className="text-destructive">Failed to load courses.</p>}
+                {!coursesLoading && !coursesError && (
                     enrolledCourses.length > 0 ? (
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {enrolledCourses.slice(0, 2).map((listing) => (

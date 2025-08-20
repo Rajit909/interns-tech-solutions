@@ -2,7 +2,7 @@
 'use client';
 
 import Link from "next/link"
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   SidebarProvider,
   Sidebar,
@@ -35,9 +35,15 @@ import {
   HelpCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import useSWR from "swr";
+import { fetcher } from "@/lib/utils";
+import type { IUser } from "@/models/User";
+import { Skeleton } from "@/components/ui/skeleton";
+
 
 const navItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", exact: true },
     { href: "/dashboard/courses", icon: BookMarked, label: "Courses" },
     { href: "/dashboard/internships", icon: Briefcase, label: "Internships" },
     { href: "/dashboard/quizzes", icon: HelpCircle, label: "Quizzes" },
@@ -50,6 +56,20 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
+  const { data, error, isLoading } = useSWR('/api/me', fetcher);
+  const user: IUser | null = data?.user;
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+      toast({ title: 'Logged out successfully' });
+      router.push('/login');
+    } catch (error) {
+      toast({ title: 'Logout failed', variant: 'destructive' });
+    }
+  }
   
   return (
     <SidebarProvider>
@@ -60,16 +80,21 @@ export default function DashboardLayout({
           </SidebarHeader>
           <SidebarContent className="p-2">
             <SidebarMenu>
-                {navItems.map((item) => (
-                    <SidebarMenuItem key={item.label}>
-                        <SidebarMenuButton asChild tooltip={item.label} isActive={pathname.startsWith(item.href)}>
-                        <Link href={item.href}>
-                            <item.icon />
-                            <span>{item.label}</span>
-                        </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ))}
+                {navItems.map((item) => {
+                    const isActive = item.exact 
+                        ? pathname === item.href 
+                        : pathname.startsWith(item.href);
+                    return (
+                        <SidebarMenuItem key={item.label}>
+                            <SidebarMenuButton asChild tooltip={item.label} isActive={isActive}>
+                            <Link href={item.href}>
+                                <item.icon />
+                                <span>{item.label}</span>
+                            </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    )
+                })}
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter className="p-2">
@@ -83,11 +108,9 @@ export default function DashboardLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Logout">
-                  <Link href="/">
+                <SidebarMenuButton tooltip="Logout" onClick={handleLogout}>
                     <LogOut />
                     <span>Logout</span>
-                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -100,18 +123,33 @@ export default function DashboardLayout({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar>
-                      <AvatarImage src="https://i.pravatar.cc/40?u=student" />
-                      <AvatarFallback>S</AvatarFallback>
-                    </Avatar>
+                     {isLoading ? (
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                    ) : error || !user ? (
+                      <Avatar>
+                        <AvatarFallback>S</AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <Avatar>
+                        <AvatarImage src={user.imageUrl} alt={user.name}/>
+                        <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
-                        <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">Student</p>
-                            <p className="text-xs leading-none text-muted-foreground">student@example.com</p>
+                      {isLoading || error || !user ? (
+                         <div className="flex flex-col space-y-2">
+                            <Skeleton className="h-4 w-[100px]" />
+                            <Skeleton className="h-3 w-[150px]" />
                         </div>
+                      ) : (
+                        <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{user.name}</p>
+                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                        </div>
+                      )}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
@@ -127,11 +165,9 @@ export default function DashboardLayout({
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <Link href="/">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Log out</span>
-                        </Link>
+                    <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
