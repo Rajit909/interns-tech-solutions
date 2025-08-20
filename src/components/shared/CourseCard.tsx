@@ -19,7 +19,7 @@ type CourseCardProps = {
 export function CourseCard({ listing }: CourseCardProps) {
   const dbListing = listing as Listing;
   const isCourse = 'instructor' in dbListing;
-  const detailUrl = isCourse ? `/dashboard/courses/${dbListing._id}` : `/dashboard/internships/${dbListing._id}`;
+  const detailUrl = isCourse ? `/courses/${dbListing._id}` : `/dashboard/internships/${dbListing._id}`;
 
   return (
     <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">

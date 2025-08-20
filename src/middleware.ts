@@ -55,10 +55,9 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
   const { pathname } = req.nextUrl;
 
-  const isAdminRoute = pathname.startsWith('/admin/') || pathname.startsWith('/api/admin/');
-  const isAuthRoute = pathname.startsWith('/admin/login') || pathname.startsWith('/admin/signup');
+  const isAdminRoute = pathname.startsWith('/admin/') && !(pathname.startsWith('/admin/login') || pathname.startsWith('/admin/signup'));
   
-  if (isAdminRoute && !isAuthRoute) {
+  if (isAdminRoute) {
     return handleAdminAuth(req, token);
   }
 
@@ -71,5 +70,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*', '/dashboard/:path*', '/api/me'],
+  matcher: ['/admin/:path*', '/dashboard/:path*', '/api/me/:path*'],
 }
