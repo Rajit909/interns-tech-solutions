@@ -8,13 +8,57 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Star, Clock, Users, Bookmark, MessageSquare } from 'lucide-react';
+import { Star, Clock, Users, Bookmark, MessageSquare, CheckCircle } from 'lucide-react';
 import type { ICourse } from '@/models/Course';
+import type { IUser } from '@/models/User';
 import { fetcher } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 export default function CourseDetailPage({ params }: { params: { id: string } }) {
   const { data, error, isLoading } = useSWR(`/api/courses/${params.id}`, fetcher);
+  const { data: userData, mutate: mutateUser } = useSWR('/api/me', fetcher);
+  
+  const [isEnrolling, setIsEnrolling] = useState(false);
+  const { toast } = useToast();
+
+  const user: IUser | null = userData?.user;
+  const isEnrolled = user?.enrolledCourses?.includes(params.id);
+
+  const handleEnroll = async () => {
+    setIsEnrolling(true);
+    try {
+      const res = await fetch('/api/me/enroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId: params.id }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to enroll in the course.');
+      }
+      
+      toast({
+        title: 'Success!',
+        description: "You've successfully enrolled in this course.",
+      });
+
+      // Revalidate user data to update UI
+      mutateUser();
+
+    } catch (err) {
+       toast({
+        title: 'Enrollment Failed',
+        description: (err as Error).message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsEnrolling(false);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -87,7 +131,9 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
               <CardTitle className="text-3xl font-bold text-primary">${listing.price}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button size="lg" className="w-full">Enroll Now</Button>
+              <Button size="lg" className="w-full" onClick={handleEnroll} disabled={isEnrolling || isEnrolled}>
+                {isEnrolled ? <><CheckCircle className="mr-2" /> Enrolled</> : (isEnrolling ? 'Enrolling...' : 'Enroll Now')}
+              </Button>
               <Button size="lg" variant="outline" className="w-full">
                 <Bookmark className="mr-2 h-4 w-4" />
                 Save for Later

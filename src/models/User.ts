@@ -1,3 +1,4 @@
+
 import mongoose, { Schema, Document, models } from 'mongoose';
 
 export interface IUser extends Document {
@@ -9,6 +10,7 @@ export interface IUser extends Document {
   subscription: 'free' | 'premium' | 'none';
   joinedDate: string;
   imageUrl: string;
+  enrolledCourses: (Schema.Types.ObjectId | string)[];
 }
 
 const UserSchema: Schema = new Schema({
@@ -20,6 +22,7 @@ const UserSchema: Schema = new Schema({
   subscription: { type: String, enum: ['free', 'premium', 'none'], default: 'none' },
   joinedDate: { type: String, required: true },
   imageUrl: { type: String, default: 'https://placehold.co/40x40.png' },
+  enrolledCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
 });
 
 export default models.User || mongoose.model<IUser>('User', UserSchema);

@@ -9,9 +9,11 @@ import { fetcher } from '@/lib/utils';
 import type { ICourse } from '@/models/Course';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { IUser } from '@/models/User';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function StudentDashboardPage() {
-    const { data: coursesData, error: coursesError, isLoading: coursesLoading } = useSWR('/api/courses', fetcher);
+    const { data: coursesData, error: coursesError, isLoading: coursesLoading } = useSWR('/api/me/courses', fetcher);
     const { data: userData, isLoading: userLoading } = useSWR('/api/me', fetcher);
     
     const enrolledCourses: ICourse[] = coursesData?.courses || [];
@@ -45,14 +47,17 @@ export default function StudentDashboardPage() {
                 {!coursesLoading && !coursesError && (
                     enrolledCourses.length > 0 ? (
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {enrolledCourses.slice(0, 2).map((listing) => (
+                            {enrolledCourses.map((listing) => (
                                 <CourseCard key={(listing as any)._id} listing={listing} />
                             ))}
                         </div>
                     ) : (
                         <Card>
-                            <CardContent className="p-6">
-                                <p className="text-muted-foreground">You are not enrolled in any courses yet.</p>
+                            <CardContent className="flex flex-col items-center justify-center p-10 text-center">
+                                <p className="text-muted-foreground mb-4">You haven't enrolled in any courses yet.</p>
+                                <Button asChild>
+                                    <Link href="/dashboard/courses">Explore Courses</Link>
+                                </Button>
                             </CardContent>
                         </Card>
                     )
