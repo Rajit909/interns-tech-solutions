@@ -12,6 +12,7 @@ export interface IUser extends Document {
   joinedDate: string;
   imageUrl: string;
   enrolledCourses: (Schema.Types.ObjectId | string)[];
+  appliedInternships: (Schema.Types.ObjectId | string)[];
 }
 
 const UserSchema: Schema = new Schema({
@@ -24,6 +25,7 @@ const UserSchema: Schema = new Schema({
   joinedDate: { type: String, required: true },
   imageUrl: { type: String, default: 'https://placehold.co/40x40.png' },
   enrolledCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
+  appliedInternships: [{ type: Schema.Types.ObjectId, ref: 'Internship' }],
 });
 
 export default models.User || mongoose.model<IUser>('User', UserSchema);

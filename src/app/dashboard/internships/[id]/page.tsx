@@ -7,13 +7,57 @@ import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, Calendar, Users, Bookmark, MessageSquare } from 'lucide-react';
+import { Briefcase, MapPin, Calendar, Users, Bookmark, MessageSquare, CheckCircle } from 'lucide-react';
 import type { IInternship } from '@/models/Internship';
+import type { IUser } from '@/models/User';
 import { fetcher } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 export default function InternshipDetailPage({ params }: { params: { id: string } }) {
   const { data, error, isLoading } = useSWR(`/api/internships/${params.id}`, fetcher);
+  const { data: userData, mutate: mutateUser } = useSWR('/api/me', fetcher);
+  
+  const [isApplying, setIsApplying] = useState(false);
+  const { toast } = useToast();
+  
+  const user: IUser | null = userData?.user;
+  const isApplied = user?.appliedInternships?.some(internshipId => internshipId.toString() === params.id);
+
+  const handleApply = async () => {
+    setIsApplying(true);
+    try {
+      const res = await fetch('/api/me/apply-internship', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ internshipId: params.id }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to apply for the internship.');
+      }
+      
+      toast({
+        title: 'Success!',
+        description: "You've successfully applied for this internship.",
+      });
+
+      // Revalidate user data to update UI
+      mutateUser();
+
+    } catch (err) {
+       toast({
+        title: 'Application Failed',
+        description: (err as Error).message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -77,7 +121,9 @@ export default function InternshipDetailPage({ params }: { params: { id: string 
               <CardTitle className="text-3xl font-bold text-primary">{listing.stipend}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button size="lg" className="w-full">Apply Now</Button>
+              <Button size="lg" className="w-full" onClick={handleApply} disabled={isApplying || isApplied}>
+                  {isApplied ? <><CheckCircle className="mr-2" /> Applied</> : (isApplying ? 'Applying...' : 'Apply Now')}
+              </Button>
               <Button size="lg" variant="outline" className="w-full">
                 <Bookmark className="mr-2 h-4 w-4" />
                 Save for Later
