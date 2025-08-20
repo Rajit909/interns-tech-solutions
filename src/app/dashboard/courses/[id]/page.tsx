@@ -14,7 +14,7 @@ import type { IUser } from '@/models/User';
 import { fetcher } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function CourseDetailPage({ params }: { params: { id: string } }) {
   const { data, error, isLoading } = useSWR(`/api/courses/${params.id}`, fetcher);
@@ -24,7 +24,7 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
   const { toast } = useToast();
 
   const user: IUser | null = userData?.user;
-  const isEnrolled = user?.enrolledCourses?.includes(params.id);
+  const isEnrolled = user?.enrolledCourses?.some(course => (course as any)._id === params.id || course === params.id);
 
   const handleEnroll = async () => {
     setIsEnrolling(true);

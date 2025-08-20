@@ -2,6 +2,7 @@
 import mongoose, { Schema, Document, models } from 'mongoose';
 
 export interface IUser extends Document {
+  _id: string;
   name: string;
   email: string;
   password?: string; // Optional for safety when sending user object to client
