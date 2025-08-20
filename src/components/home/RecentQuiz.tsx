@@ -16,22 +16,17 @@ interface RecentQuizProps {
 
 export function RecentQuiz({ quiz }: RecentQuizProps) {
   const [showPopup, setShowPopup] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (isClient && quiz) {
+    if (quiz) {
       const popupShown = localStorage.getItem('quizPopupShown');
       if (!popupShown) {
         setShowPopup(true);
         localStorage.setItem('quizPopupShown', 'true');
       }
     }
-  }, [isClient, quiz]);
+  }, [quiz]);
 
   if (!quiz) {
     return null;
@@ -68,28 +63,26 @@ export function RecentQuiz({ quiz }: RecentQuizProps) {
         </CardFooter>
       </Card>
 
-      {isClient && (
-         <Dialog open={showPopup} onOpenChange={handleOpenChange}>
-            <DialogContent className="max-w-md">
-                <DialogHeader>
-                    <div className="flex justify-center items-center h-12 w-12 rounded-full bg-primary/10 mx-auto mb-4">
-                        <HelpCircle className="h-6 w-6 text-primary" />
-                    </div>
-                    <DialogTitle className="text-center">{quiz.title}</DialogTitle>
-                    <DialogDescription className="text-center pt-2">
-                        {quiz.description}
-                        <br />
-                        <span className="font-semibold text-foreground mt-2 block">{quiz.questions.length} questions to test your skills.</span>
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="sm:justify-center pt-4">
-                    <Button type="button" size="lg" onClick={handleRedirect}>
-                        Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-      )}
+      <Dialog open={showPopup} onOpenChange={handleOpenChange}>
+          <DialogContent className="max-w-md">
+              <DialogHeader>
+                  <div className="flex justify-center items-center h-12 w-12 rounded-full bg-primary/10 mx-auto mb-4">
+                      <HelpCircle className="h-6 w-6 text-primary" />
+                  </div>
+                  <DialogTitle className="text-center">{quiz.title}</DialogTitle>
+                  <DialogDescription className="text-center pt-2">
+                      {quiz.description}
+                      <br />
+                      <span className="font-semibold text-foreground mt-2 block">{quiz.questions.length} questions to test your skills.</span>
+                  </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="sm:justify-center pt-4">
+                  <Button type="button" size="lg" onClick={handleRedirect}>
+                      Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+              </DialogFooter>
+          </DialogContent>
+      </Dialog>
     </>
   );
 }
