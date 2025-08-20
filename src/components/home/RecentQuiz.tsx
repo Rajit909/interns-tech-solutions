@@ -1,14 +1,14 @@
 
 'use client';
 
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import type { IQuiz } from '@/models/Quiz';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { QuizPopup } from '@/components/student/QuizPopup';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useRouter } from 'next/navigation';
 
 interface RecentQuizProps {
   quiz: IQuiz;
@@ -17,6 +17,7 @@ interface RecentQuizProps {
 export function RecentQuiz({ quiz }: RecentQuizProps) {
   const [showPopup, setShowPopup] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
@@ -41,6 +42,11 @@ export function RecentQuiz({ quiz }: RecentQuizProps) {
         setShowPopup(false);
     }
   };
+  
+  const handleRedirect = () => {
+    setShowPopup(false);
+    router.push(`/dashboard/quizzes/${(quiz as any)._id}`);
+  };
 
 
   return (
@@ -64,8 +70,23 @@ export function RecentQuiz({ quiz }: RecentQuizProps) {
 
       {isClient && (
          <Dialog open={showPopup} onOpenChange={handleOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-                <QuizPopup quiz={quiz} onFinish={() => setShowPopup(false)} />
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <div className="flex justify-center items-center h-12 w-12 rounded-full bg-primary/10 mx-auto mb-4">
+                        <HelpCircle className="h-6 w-6 text-primary" />
+                    </div>
+                    <DialogTitle className="text-center">{quiz.title}</DialogTitle>
+                    <DialogDescription className="text-center pt-2">
+                        {quiz.description}
+                        <br />
+                        <span className="font-semibold text-foreground mt-2 block">{quiz.questions.length} questions to test your skills.</span>
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="sm:justify-center pt-4">
+                    <Button type="button" size="lg" onClick={handleRedirect}>
+                        Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
       )}
