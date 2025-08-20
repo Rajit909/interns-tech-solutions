@@ -27,14 +27,25 @@ export function CourseCard({ listing }: CourseCardProps) {
 
   let detailUrl = '#';
   if (isCourse) {
-    detailUrl = isDashboard ? `/dashboard/courses/${dbListing._id}/learn` : `/courses/${dbListing._id}`;
+    // If user is on dashboard, clicking a course card should lead to the dashboard detail page.
+    // Otherwise, it should lead to the public preview page.
+    detailUrl = isDashboard ? `/dashboard/courses/${dbListing._id}` : `/courses/${dbListing._id}`;
   } else {
+    // Internships always go to the dashboard detail page as there's no public preview.
     detailUrl = `/dashboard/internships/${dbListing._id}`;
   }
+
+  // Check if we are on the learn page specifically
+  const onLearnPage = pathname.includes('/learn');
   
   let buttonText = "View Details";
-  if(isCourse && isDashboard) {
-      buttonText = "Start Learning";
+  if(isCourse) {
+      if (isDashboard) {
+        buttonText = "Start Learning";
+        detailUrl = `/dashboard/courses/${dbListing._id}/learn`;
+      } else {
+        buttonText = "View Course";
+      }
   }
   if(!isCourse && isDashboard) {
       buttonText = "View Application";
