@@ -1,7 +1,10 @@
 
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, MapPin } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +22,24 @@ type CourseCardProps = {
 export function CourseCard({ listing }: CourseCardProps) {
   const dbListing = listing as Listing;
   const isCourse = 'instructor' in dbListing;
-  const detailUrl = isCourse ? `/courses/${dbListing._id}` : `/dashboard/internships/${dbListing._id}`;
+  const pathname = usePathname();
+  const isDashboard = pathname.includes('/dashboard');
+
+  let detailUrl = '#';
+  if (isCourse) {
+    detailUrl = isDashboard ? `/dashboard/courses/${dbListing._id}/learn` : `/courses/${dbListing._id}`;
+  } else {
+    detailUrl = `/dashboard/internships/${dbListing._id}`;
+  }
+  
+  let buttonText = "View Details";
+  if(isCourse && isDashboard) {
+      buttonText = "Start Learning";
+  }
+  if(!isCourse && isDashboard) {
+      buttonText = "View Application";
+  }
+
 
   return (
     <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
@@ -86,7 +106,7 @@ export function CourseCard({ listing }: CourseCardProps) {
       </CardFooter>
       <div className="p-4 pt-0">
         <Button asChild className="w-full">
-            <Link href={detailUrl}>View Details</Link>
+            <Link href={detailUrl}>{buttonText}</Link>
         </Button>
       </div>
     </Card>
