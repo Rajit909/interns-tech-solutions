@@ -32,6 +32,7 @@ import {
   Settings,
   User,
   Rss,
+  Presentation,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from 'next/navigation'
@@ -49,6 +50,7 @@ const navItems = [
     { href: "/admin/internships", icon: Briefcase, label: "Internships" },
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/blogs", icon: Rss, label: "Blog" },
+    { href: "/admin/hero", icon: Presentation, label: "Hero" },
     { href: "/admin/subscriptions", icon: BadgeDollarSign, label: "Subscriptions" },
 ];
 
