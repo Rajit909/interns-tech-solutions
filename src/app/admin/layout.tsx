@@ -126,7 +126,7 @@ export default function AdminLayout({
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex-1">
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 p-4 backdrop-blur">
             <SidebarTrigger />
             <div className="flex items-center gap-4">
