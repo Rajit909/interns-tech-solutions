@@ -79,7 +79,7 @@ export default function AdminLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen" style={{width: "100%"}}>
         <Sidebar collapsible="icon" className="border-r bg-card">
           <SidebarHeader className="p-2">
             <Logo />
