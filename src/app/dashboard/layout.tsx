@@ -39,20 +39,48 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import useSWR from "swr";
-import { fetcher } from "@/lib/utils";
+import { fetcher, cn } from "@/lib/utils";
 import type { IUser } from "@/models/User";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 
 const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", exact: true },
     { href: "/dashboard/courses", icon: BookMarked, label: "My Courses" },
-    { href: "/dashboard/courses/all", icon: Library, label: "All Courses" },
     { href: "/dashboard/internships", icon: Briefcase, label: "Internships" },
-    { href: "/dashboard/quizzes", icon: HelpCircle, label: "Quizzes" },
-    { href: "/dashboard/assistant", icon: Code, label: "Coding Assistant" },
-    { href: "/dashboard/saved", icon: Bookmark, label: "Saved Items" },
+    { href: "/dashboard/assistant", icon: Code, label: "Assistant" },
+    { href: "/dashboard/profile", icon: User, label: "Profile" },
 ];
+
+function BottomNavBar() {
+    const pathname = usePathname();
+    return (
+        <div className="md:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
+            <div className="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
+                {navItems.map((item) => {
+                     const isActive = item.exact 
+                        ? pathname === item.href 
+                        : pathname.startsWith(item.href);
+                    return (
+                        <Link 
+                            key={item.label}
+                            href={item.href}
+                            className={cn(
+                                "inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group",
+                                isActive ? "text-primary" : "text-muted-foreground"
+                            )}
+                        >
+                            <item.icon className="w-5 h-5 mb-1" />
+                            <span className="text-xs">{item.label}</span>
+                        </Link>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
 
 export default function DashboardLayout({
   children,
@@ -62,6 +90,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const { data, error, isLoading } = useSWR('/api/me', fetcher);
   const user: IUser | null = data?.user;
 
@@ -75,16 +104,26 @@ export default function DashboardLayout({
     }
   }
   
+  const desktopNavItems = [
+    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", exact: true },
+    { href: "/dashboard/courses", icon: BookMarked, label: "My Courses" },
+    { href: "/dashboard/courses/all", icon: Library, label: "All Courses" },
+    { href: "/dashboard/internships", icon: Briefcase, label: "Internships" },
+    { href: "/dashboard/quizzes", icon: HelpCircle, label: "Quizzes" },
+    { href: "/dashboard/assistant", icon: Code, label: "Coding Assistant" },
+    { href: "/dashboard/saved", icon: Bookmark, label: "Saved Items" },
+  ];
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen" style={{width: "100%"}}>
-        <Sidebar collapsible="icon" className="border-r bg-card">
+        <Sidebar collapsible="icon" className="border-r bg-card hidden md:block">
           <SidebarHeader className="p-2">
             <Logo />
           </SidebarHeader>
           <SidebarContent className="p-2">
             <SidebarMenu>
-                {navItems.map((item) => {
+                {desktopNavItems.map((item) => {
                     const isActive = item.exact 
                         ? pathname === item.href 
                         : pathname.startsWith(item.href);
@@ -120,9 +159,14 @@ export default function DashboardLayout({
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col">
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 p-4 backdrop-blur">
-            <SidebarTrigger />
+             <div className="md:hidden">
+                <Logo />
+            </div>
+            <div className="hidden md:block">
+                <SidebarTrigger />
+            </div>
             <div className="flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -183,9 +227,10 @@ export default function DashboardLayout({
               </DropdownMenu>
             </div>
           </header>
-          <main className="p-4 md:p-6">{children}</main>
+          <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6">{children}</main>
         </div>
       </div>
+      {isMobile && <BottomNavBar />}
     </SidebarProvider>
   )
 }
