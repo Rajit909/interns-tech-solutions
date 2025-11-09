@@ -34,6 +34,7 @@ import {
   Settings,
   HelpCircle,
   Library,
+  Code,
 } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -49,6 +50,7 @@ const navItems = [
     { href: "/dashboard/courses/all", icon: Library, label: "All Courses" },
     { href: "/dashboard/internships", icon: Briefcase, label: "Internships" },
     { href: "/dashboard/quizzes", icon: HelpCircle, label: "Quizzes" },
+    { href: "/dashboard/assistant", icon: Code, label: "Coding Assistant" },
     { href: "/dashboard/saved", icon: Bookmark, label: "Saved Items" },
 ];
 
