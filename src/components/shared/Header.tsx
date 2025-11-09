@@ -15,6 +15,7 @@ const navLinks = [
   { href: '/#courses', label: 'Courses' },
   { href: '/#internships', label: 'Internships' },
   { href: '/#about', label: 'About' },
+  { href: '/#testimonials', label: 'Testimonials' },
 ];
 
 export function Header() {

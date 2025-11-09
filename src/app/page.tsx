@@ -1,7 +1,8 @@
 
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Briefcase, Filter, Search, Building2, Rss, Clock, HelpCircle } from 'lucide-react';
+import { ArrowRight, BookOpen, Briefcase, Filter, Search, Building2, Rss, Clock, HelpCircle, GraduationCap, PenSquare, Quote } from 'lucide-react';
 import { unstable_noStore as noStore } from 'next/cache';
 
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ import connectDB from '@/lib/db';
 import { HeroCarousel } from '@/components/home/HeroCarousel';
 import type { IQuiz } from '@/models/Quiz';
 import { RecentQuiz } from '@/components/home/RecentQuiz';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 async function getCourses() {
@@ -132,6 +134,50 @@ export default async function Home() {
     { name: 'TechForward', logo: 'https://placehold.co/150x60.png' },
     { name: 'QuantumLeap', logo: 'https://placehold.co/150x60.png' },
   ];
+
+  const howItWorksSteps = [
+    {
+      icon: Search,
+      title: 'Explore Opportunities',
+      description: 'Browse our extensive catalog of industry-vetted courses and exclusive internship positions.',
+    },
+    {
+      icon: PenSquare,
+      title: 'Enroll & Learn',
+      description: 'Enroll in courses with a single click and start learning from experts at your own pace.',
+    },
+    {
+      icon: Briefcase,
+      title: 'Apply & Get Hired',
+      description: 'Apply for internships that match your skills and get your foot in the door at top companies.',
+    },
+    {
+      icon: GraduationCap,
+      title: 'Launch Your Career',
+      description: 'Combine your new skills and experience to launch a successful career in the tech industry.',
+    },
+  ];
+
+  const testimonials = [
+    {
+        quote: "This platform was a game-changer for my career transition. The courses are top-notch and the internship I landed through them was invaluable.",
+        name: "Sarah L.",
+        role: "Software Engineer at TechForward",
+        avatar: "https://i.pravatar.cc/150?u=sarah"
+    },
+    {
+        quote: "I always struggled with interviews, but the 'Ace the Interview' course gave me the confidence and skills I needed. Highly recommended!",
+        name: "Michael B.",
+        role: "Frontend Developer at Innovate Inc.",
+        avatar: "https://i.pravatar.cc/150?u=michael"
+    },
+    {
+        quote: "As a student, finding relevant experience is tough. Intern Tech Solutions connected me with opportunities I wouldn't have found otherwise.",
+        name: "Jessica P.",
+        role: "Data Science Intern at Data Insights",
+        avatar: "https://i.pravatar.cc/150?u=jessica"
+    }
+];
   
 
   return (
@@ -202,9 +248,29 @@ export default async function Home() {
             </div>
           </div>
         </section>
+
+        <section id="how-it-works" className="py-16 md:py-24">
+            <div className="container mx-auto px-4 md:px-6">
+                <div className="mb-12 text-center">
+                    <h2 className="font-headline text-3xl font-bold tracking-tight">How It Works</h2>
+                    <p className="mx-auto max-w-2xl text-lg text-muted-foreground">Four simple steps to launch your career.</p>
+                </div>
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+                    {howItWorksSteps.map((step, index) => (
+                        <div key={index} className="text-center">
+                            <div className="mb-4 inline-flex items-center justify-center rounded-full bg-primary/10 p-4 text-primary">
+                                <step.icon className="h-8 w-8" />
+                            </div>
+                            <h3 className="mb-2 text-xl font-bold">{step.title}</h3>
+                            <p className="text-muted-foreground">{step.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
         
         {recentQuiz && (
-            <section id="quiz" className="py-16 md:py-24">
+            <section id="quiz" className="bg-secondary/30 py-16 md:py-24">
                  <div className="container mx-auto px-4 md:px-6">
                      <div className="mb-12 text-center">
                         <div className="mb-4 inline-flex items-center gap-3">
@@ -222,7 +288,7 @@ export default async function Home() {
             </section>
         )}
 
-        <section id="about" className="bg-secondary/30 py-16 md:py-24">
+        <section id="about" className="py-16 md:py-24">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid items-center gap-12 md:grid-cols-2">
               <div>
@@ -274,7 +340,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="partners" className="py-16 md:py-24">
+        <section id="partners" className="bg-secondary/30 py-16 md:py-24">
           <div className="container mx-auto px-4 md:px-6">
             <div className="mb-12 text-center">
                 <div className="mb-4 inline-flex items-center gap-3">
@@ -303,6 +369,41 @@ export default async function Home() {
             </div>
           </div>
         </section>
+
+        <section id="testimonials" className="py-16 md:py-24">
+            <div className="container mx-auto px-4 md:px-6">
+                <div className="mb-12 text-center">
+                    <div className="mb-4 inline-flex items-center gap-3">
+                        <Quote className="h-8 w-8 text-primary" />
+                        <h2 className="font-headline text-3xl font-bold tracking-tight">
+                            What Our Students Say
+                        </h2>
+                    </div>
+                    <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                        Hear from students who have launched their careers with us.
+                    </p>
+                </div>
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    {testimonials.map((testimonial, index) => (
+                       <Card key={index} className="flex flex-col">
+                           <CardContent className="flex-grow p-6 flex flex-col justify-center items-center text-center">
+                               <Quote className="h-8 w-8 text-muted-foreground/50 mb-4" />
+                               <p className="italic text-muted-foreground mb-6">&quot;{testimonial.quote}&quot;</p>
+                           </CardContent>
+                           <CardFooter className="flex flex-col items-center justify-center p-6 border-t">
+                               <Avatar className="mb-2">
+                                   <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+                                   <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                               </Avatar>
+                               <div className="font-bold">{testimonial.name}</div>
+                               <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                           </CardFooter>
+                       </Card>
+                    ))}
+                </div>
+            </div>
+        </section>
+
 
         <section id="blog" className="bg-secondary/30 py-16 md:py-24">
             <div className="container mx-auto px-4 md:px-6">
